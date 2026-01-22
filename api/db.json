@@ -103,598 +103,628 @@
       "amount": 5000,
       "categoryId": "9",
       "description": "Monthly salary",
-      "date": "2024-01-01T09:00:00.000Z",
-      "createdAt": "2024-01-01T09:00:00.000Z"
+      "date": "2024-01-01T03:30:00.000Z",
+      "createdAt": "2024-01-01T03:30:00.000Z"
     },
     {
       "id": "2",
       "userId": "1",
       "type": "expense",
-      "amount": 1200,
-      "categoryId": "5",
-      "description": "Rent payment",
-      "date": "2024-01-02T10:00:00.000Z",
-      "createdAt": "2024-01-02T10:00:00.000Z"
+      "amount": 49.04,
+      "categoryId": "2",
+      "description": "Train ticket",
+      "date": "2024-01-02T01:05:13.884Z",
+      "createdAt": "2024-01-02T01:05:13.884Z"
     },
     {
       "id": "3",
       "userId": "1",
       "type": "expense",
-      "amount": 85.50,
-      "categoryId": "1",
-      "description": "Weekly groceries",
-      "date": "2024-01-03T14:30:00.000Z",
-      "createdAt": "2024-01-03T14:30:00.000Z"
+      "amount": 1200,
+      "categoryId": "5",
+      "description": "Rent payment",
+      "date": "2024-01-02T04:30:00.000Z",
+      "createdAt": "2024-01-02T04:30:00.000Z"
     },
     {
       "id": "4",
       "userId": "1",
-      "type": "expense",
-      "amount": 45.00,
-      "categoryId": "2",
-      "description": "Gas fill-up",
-      "date": "2024-01-04T16:00:00.000Z",
-      "createdAt": "2024-01-04T16:00:00.000Z"
+      "type": "income",
+      "amount": 241.48,
+      "categoryId": "11",
+      "description": "Stock dividends",
+      "date": "2024-01-03T18:27:49.848Z",
+      "createdAt": "2024-01-03T18:27:49.848Z"
     },
     {
       "id": "5",
       "userId": "1",
       "type": "expense",
-      "amount": 15.99,
-      "categoryId": "3",
-      "description": "Netflix subscription",
-      "date": "2024-01-05T00:00:00.000Z",
-      "createdAt": "2024-01-05T00:00:00.000Z"
+      "amount": 151,
+      "categoryId": "7",
+      "description": "Workshop fee",
+      "date": "2024-01-09T13:45:14.100Z",
+      "createdAt": "2024-01-09T13:45:14.100Z"
     },
     {
       "id": "6",
       "userId": "1",
       "type": "expense",
-      "amount": 65.00,
-      "categoryId": "1",
-      "description": "Dinner with friends",
-      "date": "2024-01-06T19:30:00.000Z",
-      "createdAt": "2024-01-06T19:30:00.000Z"
+      "amount": 33.19,
+      "categoryId": "8",
+      "description": "Bank fee",
+      "date": "2024-01-12T15:56:47.152Z",
+      "createdAt": "2024-01-12T15:56:47.152Z"
     },
     {
       "id": "7",
       "userId": "1",
-      "type": "income",
-      "amount": 500,
-      "categoryId": "10",
-      "description": "Freelance web project",
-      "date": "2024-01-07T11:00:00.000Z",
-      "createdAt": "2024-01-07T11:00:00.000Z"
+      "type": "expense",
+      "amount": 80.17,
+      "categoryId": "2",
+      "description": "Bus pass",
+      "date": "2024-01-15T01:14:00.065Z",
+      "createdAt": "2024-01-15T01:14:00.065Z"
     },
     {
       "id": "8",
       "userId": "1",
       "type": "expense",
-      "amount": 120.00,
-      "categoryId": "5",
-      "description": "Electric bill",
-      "date": "2024-01-08T09:00:00.000Z",
-      "createdAt": "2024-01-08T09:00:00.000Z"
+      "amount": 38.39,
+      "categoryId": "6",
+      "description": "Dental checkup",
+      "date": "2024-01-15T12:31:38.196Z",
+      "createdAt": "2024-01-15T12:31:38.196Z"
     },
     {
       "id": "9",
       "userId": "1",
       "type": "expense",
-      "amount": 89.99,
-      "categoryId": "4",
-      "description": "New headphones",
-      "date": "2024-01-10T15:00:00.000Z",
-      "createdAt": "2024-01-10T15:00:00.000Z"
+      "amount": 47.34,
+      "categoryId": "1",
+      "description": "Weekly groceries",
+      "date": "2024-01-15T15:28:32.578Z",
+      "createdAt": "2024-01-15T15:28:32.578Z"
     },
     {
       "id": "10",
       "userId": "1",
       "type": "expense",
-      "amount": 32.50,
-      "categoryId": "1",
-      "description": "Lunch meetings",
-      "date": "2024-01-11T12:30:00.000Z",
-      "createdAt": "2024-01-11T12:30:00.000Z"
+      "amount": 266.17,
+      "categoryId": "7",
+      "description": "Certification exam",
+      "date": "2024-01-17T11:19:15.844Z",
+      "createdAt": "2024-01-17T11:19:15.844Z"
     },
     {
       "id": "11",
       "userId": "1",
       "type": "expense",
-      "amount": 150.00,
-      "categoryId": "6",
-      "description": "Gym membership",
-      "date": "2024-01-12T08:00:00.000Z",
-      "createdAt": "2024-01-12T08:00:00.000Z"
+      "amount": 130.54,
+      "categoryId": "7",
+      "description": "Workshop fee",
+      "date": "2024-01-17T23:06:40.488Z",
+      "createdAt": "2024-01-17T23:06:40.488Z"
     },
     {
       "id": "12",
       "userId": "1",
       "type": "expense",
-      "amount": 25.00,
+      "amount": 28.29,
       "categoryId": "2",
-      "description": "Uber rides",
-      "date": "2024-01-13T22:00:00.000Z",
-      "createdAt": "2024-01-13T22:00:00.000Z"
+      "description": "Car maintenance",
+      "date": "2024-01-19T18:19:34.286Z",
+      "createdAt": "2024-01-19T18:19:34.286Z"
     },
     {
       "id": "13",
       "userId": "1",
       "type": "expense",
-      "amount": 78.00,
-      "categoryId": "1",
-      "description": "Grocery shopping",
-      "date": "2024-01-14T11:00:00.000Z",
-      "createdAt": "2024-01-14T11:00:00.000Z"
+      "amount": 56.56,
+      "categoryId": "3",
+      "description": "Netflix subscription",
+      "date": "2024-01-20T21:40:37.584Z",
+      "createdAt": "2024-01-20T21:40:37.584Z"
     },
     {
       "id": "14",
       "userId": "1",
-      "type": "income",
-      "amount": 200,
-      "categoryId": "11",
-      "description": "Stock dividends",
-      "date": "2024-01-15T00:00:00.000Z",
-      "createdAt": "2024-01-15T00:00:00.000Z"
+      "type": "expense",
+      "amount": 25.05,
+      "categoryId": "6",
+      "description": "Pharmacy",
+      "date": "2024-01-20T22:13:30.950Z",
+      "createdAt": "2024-01-20T22:13:30.950Z"
     },
     {
       "id": "15",
       "userId": "1",
       "type": "expense",
-      "amount": 55.00,
-      "categoryId": "3",
-      "description": "Movie tickets",
-      "date": "2024-01-16T20:00:00.000Z",
-      "createdAt": "2024-01-16T20:00:00.000Z"
+      "amount": 243.42,
+      "categoryId": "7",
+      "description": "Online course",
+      "date": "2024-01-22T09:29:39.890Z",
+      "createdAt": "2024-01-22T09:29:39.890Z"
     },
     {
       "id": "16",
       "userId": "1",
-      "type": "expense",
-      "amount": 199.99,
-      "categoryId": "4",
-      "description": "Winter jacket",
-      "date": "2024-01-17T14:00:00.000Z",
-      "createdAt": "2024-01-17T14:00:00.000Z"
+      "type": "income",
+      "amount": 848.94,
+      "categoryId": "10",
+      "description": "Freelance project",
+      "date": "2024-01-23T16:11:28.136Z",
+      "createdAt": "2024-01-23T16:11:28.136Z"
     },
     {
       "id": "17",
       "userId": "1",
       "type": "expense",
-      "amount": 45.00,
-      "categoryId": "6",
-      "description": "Pharmacy",
-      "date": "2024-01-18T10:00:00.000Z",
-      "createdAt": "2024-01-18T10:00:00.000Z"
+      "amount": 159,
+      "categoryId": "5",
+      "description": "Insurance",
+      "date": "2024-01-24T18:10:45.074Z",
+      "createdAt": "2024-01-24T18:10:45.074Z"
     },
     {
       "id": "18",
       "userId": "1",
       "type": "expense",
-      "amount": 12.99,
-      "categoryId": "3",
-      "description": "Spotify premium",
-      "date": "2024-01-19T00:00:00.000Z",
-      "createdAt": "2024-01-19T00:00:00.000Z"
+      "amount": 183.61,
+      "categoryId": "4",
+      "description": "Electronics",
+      "date": "2024-01-27T00:58:36.523Z",
+      "createdAt": "2024-01-27T00:58:36.523Z"
     },
     {
       "id": "19",
       "userId": "1",
       "type": "expense",
-      "amount": 95.00,
-      "categoryId": "1",
-      "description": "Restaurant dinner",
-      "date": "2024-01-20T19:00:00.000Z",
-      "createdAt": "2024-01-20T19:00:00.000Z"
+      "amount": 94.16,
+      "categoryId": "5",
+      "description": "Phone bill",
+      "date": "2024-01-28T06:04:53.303Z",
+      "createdAt": "2024-01-28T06:04:53.303Z"
     },
     {
       "id": "20",
       "userId": "1",
       "type": "expense",
-      "amount": 40.00,
-      "categoryId": "2",
-      "description": "Gas station",
-      "date": "2024-01-21T17:00:00.000Z",
-      "createdAt": "2024-01-21T17:00:00.000Z"
+      "amount": 30.69,
+      "categoryId": "3",
+      "description": "Movie tickets",
+      "date": "2024-01-29T17:26:01.752Z",
+      "createdAt": "2024-01-29T17:26:01.752Z"
     },
     {
       "id": "21",
       "userId": "1",
-      "type": "expense",
-      "amount": 299.00,
-      "categoryId": "7",
-      "description": "Online course",
-      "date": "2024-01-22T09:00:00.000Z",
-      "createdAt": "2024-01-22T09:00:00.000Z"
+      "type": "income",
+      "amount": 5000,
+      "categoryId": "9",
+      "description": "Monthly salary",
+      "date": "2024-02-01T03:30:00.000Z",
+      "createdAt": "2024-02-01T03:30:00.000Z"
     },
     {
       "id": "22",
       "userId": "1",
       "type": "expense",
-      "amount": 68.00,
-      "categoryId": "1",
-      "description": "Groceries",
-      "date": "2024-01-23T13:00:00.000Z",
-      "createdAt": "2024-01-23T13:00:00.000Z"
+      "amount": 1200,
+      "categoryId": "5",
+      "description": "Rent payment",
+      "date": "2024-02-02T04:30:00.000Z",
+      "createdAt": "2024-02-02T04:30:00.000Z"
     },
     {
       "id": "23",
       "userId": "1",
       "type": "expense",
-      "amount": 80.00,
-      "categoryId": "5",
-      "description": "Internet bill",
-      "date": "2024-01-24T10:00:00.000Z",
-      "createdAt": "2024-01-24T10:00:00.000Z"
+      "amount": 18.78,
+      "categoryId": "8",
+      "description": "Bank fee",
+      "date": "2024-02-04T02:55:56.658Z",
+      "createdAt": "2024-02-04T02:55:56.658Z"
     },
     {
       "id": "24",
       "userId": "1",
-      "type": "income",
-      "amount": 350,
-      "categoryId": "10",
-      "description": "Logo design project",
-      "date": "2024-01-25T15:00:00.000Z",
-      "createdAt": "2024-01-25T15:00:00.000Z"
+      "type": "expense",
+      "amount": 34.55,
+      "categoryId": "2",
+      "description": "Train ticket",
+      "date": "2024-02-06T00:30:57.285Z",
+      "createdAt": "2024-02-06T00:30:57.285Z"
     },
     {
       "id": "25",
       "userId": "1",
-      "type": "expense",
-      "amount": 42.00,
-      "categoryId": "3",
-      "description": "Concert tickets",
-      "date": "2024-01-26T21:00:00.000Z",
-      "createdAt": "2024-01-26T21:00:00.000Z"
+      "type": "income",
+      "amount": 267.19,
+      "categoryId": "10",
+      "description": "Side gig payment",
+      "date": "2024-02-10T21:00:35.739Z",
+      "createdAt": "2024-02-10T21:00:35.739Z"
     },
     {
       "id": "26",
       "userId": "1",
       "type": "expense",
-      "amount": 156.00,
-      "categoryId": "4",
-      "description": "Running shoes",
-      "date": "2024-01-27T12:00:00.000Z",
-      "createdAt": "2024-01-27T12:00:00.000Z"
+      "amount": 70.02,
+      "categoryId": "7",
+      "description": "Certification exam",
+      "date": "2024-02-13T13:35:12.022Z",
+      "createdAt": "2024-02-13T13:35:12.022Z"
     },
     {
       "id": "27",
       "userId": "1",
       "type": "expense",
-      "amount": 28.50,
-      "categoryId": "1",
-      "description": "Coffee supplies",
-      "date": "2024-01-28T08:00:00.000Z",
-      "createdAt": "2024-01-28T08:00:00.000Z"
+      "amount": 98.87,
+      "categoryId": "4",
+      "description": "Electronics",
+      "date": "2024-02-14T08:26:13.925Z",
+      "createdAt": "2024-02-14T08:26:13.925Z"
     },
     {
       "id": "28",
       "userId": "1",
       "type": "expense",
-      "amount": 55.00,
-      "categoryId": "2",
-      "description": "Car wash and maintenance",
-      "date": "2024-01-29T14:00:00.000Z",
-      "createdAt": "2024-01-29T14:00:00.000Z"
+      "amount": 40.34,
+      "categoryId": "3",
+      "description": "Books",
+      "date": "2024-02-15T11:12:07.801Z",
+      "createdAt": "2024-02-15T11:12:07.801Z"
     },
     {
       "id": "29",
       "userId": "1",
       "type": "expense",
-      "amount": 35.00,
+      "amount": 22.18,
       "categoryId": "6",
       "description": "Vitamins",
-      "date": "2024-01-30T11:00:00.000Z",
-      "createdAt": "2024-01-30T11:00:00.000Z"
+      "date": "2024-02-15T15:02:01.634Z",
+      "createdAt": "2024-02-15T15:02:01.634Z"
     },
     {
       "id": "30",
       "userId": "1",
       "type": "expense",
-      "amount": 72.00,
-      "categoryId": "1",
-      "description": "Weekly groceries",
-      "date": "2024-01-31T10:00:00.000Z",
-      "createdAt": "2024-01-31T10:00:00.000Z"
+      "amount": 58.15,
+      "categoryId": "7",
+      "description": "Online course",
+      "date": "2024-02-15T22:30:22.017Z",
+      "createdAt": "2024-02-15T22:30:22.017Z"
     },
     {
       "id": "31",
       "userId": "1",
-      "type": "income",
-      "amount": 5000,
-      "categoryId": "9",
-      "description": "Monthly salary",
-      "date": "2024-02-01T09:00:00.000Z",
-      "createdAt": "2024-02-01T09:00:00.000Z"
+      "type": "expense",
+      "amount": 67.85,
+      "categoryId": "1",
+      "description": "Fast food",
+      "date": "2024-02-16T22:34:54.241Z",
+      "createdAt": "2024-02-16T22:34:54.241Z"
     },
     {
       "id": "32",
       "userId": "1",
       "type": "expense",
-      "amount": 1200,
-      "categoryId": "5",
-      "description": "Rent payment",
-      "date": "2024-02-02T10:00:00.000Z",
-      "createdAt": "2024-02-02T10:00:00.000Z"
+      "amount": 114.39,
+      "categoryId": "1",
+      "description": "Lunch meeting",
+      "date": "2024-02-17T17:54:47.667Z",
+      "createdAt": "2024-02-17T17:54:47.667Z"
     },
     {
       "id": "33",
       "userId": "1",
       "type": "expense",
-      "amount": 92.00,
+      "amount": 62.13,
       "categoryId": "1",
-      "description": "Grocery shopping",
-      "date": "2024-02-03T11:00:00.000Z",
-      "createdAt": "2024-02-03T11:00:00.000Z"
+      "description": "Coffee shop",
+      "date": "2024-02-19T18:52:43.196Z",
+      "createdAt": "2024-02-19T18:52:43.196Z"
     },
     {
       "id": "34",
       "userId": "1",
       "type": "expense",
-      "amount": 48.00,
-      "categoryId": "2",
-      "description": "Gas",
-      "date": "2024-02-05T16:00:00.000Z",
-      "createdAt": "2024-02-05T16:00:00.000Z"
+      "amount": 51.96,
+      "categoryId": "6",
+      "description": "Pharmacy",
+      "date": "2024-02-22T01:38:46.967Z",
+      "createdAt": "2024-02-22T01:38:46.967Z"
     },
     {
       "id": "35",
       "userId": "1",
       "type": "expense",
-      "amount": 15.99,
-      "categoryId": "3",
-      "description": "Netflix",
-      "date": "2024-02-05T00:00:00.000Z",
-      "createdAt": "2024-02-05T00:00:00.000Z"
+      "amount": 81.59,
+      "categoryId": "5",
+      "description": "Electric bill",
+      "date": "2024-02-23T12:02:55.696Z",
+      "createdAt": "2024-02-23T12:02:55.696Z"
     },
     {
       "id": "36",
       "userId": "1",
       "type": "expense",
-      "amount": 85.00,
-      "categoryId": "1",
-      "description": "Valentine's dinner",
-      "date": "2024-02-14T19:00:00.000Z",
-      "createdAt": "2024-02-14T19:00:00.000Z"
+      "amount": 198.74,
+      "categoryId": "5",
+      "description": "Phone bill",
+      "date": "2024-02-24T03:24:54.589Z",
+      "createdAt": "2024-02-24T03:24:54.589Z"
     },
     {
       "id": "37",
       "userId": "1",
       "type": "expense",
-      "amount": 75.00,
-      "categoryId": "4",
-      "description": "Valentine's gift",
-      "date": "2024-02-14T12:00:00.000Z",
-      "createdAt": "2024-02-14T12:00:00.000Z"
+      "amount": 33.3,
+      "categoryId": "8",
+      "description": "Miscellaneous",
+      "date": "2024-02-24T17:43:29.595Z",
+      "createdAt": "2024-02-24T17:43:29.595Z"
     },
     {
       "id": "38",
       "userId": "1",
       "type": "income",
-      "amount": 800,
+      "amount": 445.11,
       "categoryId": "10",
-      "description": "Freelance consulting",
-      "date": "2024-02-15T10:00:00.000Z",
-      "createdAt": "2024-02-15T10:00:00.000Z"
+      "description": "Freelance project",
+      "date": "2024-02-25T17:13:03.755Z",
+      "createdAt": "2024-02-25T17:13:03.755Z"
     },
     {
       "id": "39",
       "userId": "1",
       "type": "expense",
-      "amount": 125.00,
-      "categoryId": "5",
-      "description": "Electric bill",
-      "date": "2024-02-16T09:00:00.000Z",
-      "createdAt": "2024-02-16T09:00:00.000Z"
+      "amount": 88.5,
+      "categoryId": "1",
+      "description": "Grocery shopping",
+      "date": "2024-02-26T17:55:08.180Z",
+      "createdAt": "2024-02-26T17:55:08.180Z"
     },
     {
       "id": "40",
-      "userId": "1",
-      "type": "expense",
-      "amount": 150.00,
-      "categoryId": "6",
-      "description": "Gym membership",
-      "date": "2024-02-12T08:00:00.000Z",
-      "createdAt": "2024-02-12T08:00:00.000Z"
-    },
-    {
-      "id": "41",
-      "userId": "1",
-      "type": "expense",
-      "amount": 12.99,
-      "categoryId": "3",
-      "description": "Spotify",
-      "date": "2024-02-19T00:00:00.000Z",
-      "createdAt": "2024-02-19T00:00:00.000Z"
-    },
-    {
-      "id": "42",
-      "userId": "1",
-      "type": "expense",
-      "amount": 88.00,
-      "categoryId": "1",
-      "description": "Groceries",
-      "date": "2024-02-20T14:00:00.000Z",
-      "createdAt": "2024-02-20T14:00:00.000Z"
-    },
-    {
-      "id": "43",
-      "userId": "1",
-      "type": "expense",
-      "amount": 35.00,
-      "categoryId": "2",
-      "description": "Uber",
-      "date": "2024-02-22T23:00:00.000Z",
-      "createdAt": "2024-02-22T23:00:00.000Z"
-    },
-    {
-      "id": "44",
-      "userId": "1",
-      "type": "expense",
-      "amount": 80.00,
-      "categoryId": "5",
-      "description": "Internet",
-      "date": "2024-02-24T10:00:00.000Z",
-      "createdAt": "2024-02-24T10:00:00.000Z"
-    },
-    {
-      "id": "45",
-      "userId": "1",
-      "type": "expense",
-      "amount": 65.00,
-      "categoryId": "3",
-      "description": "Board games",
-      "date": "2024-02-25T15:00:00.000Z",
-      "createdAt": "2024-02-25T15:00:00.000Z"
-    },
-    {
-      "id": "46",
-      "userId": "1",
-      "type": "income",
-      "amount": 150,
-      "categoryId": "11",
-      "description": "Dividend payment",
-      "date": "2024-02-26T00:00:00.000Z",
-      "createdAt": "2024-02-26T00:00:00.000Z"
-    },
-    {
-      "id": "47",
-      "userId": "1",
-      "type": "expense",
-      "amount": 95.00,
-      "categoryId": "1",
-      "description": "Grocery run",
-      "date": "2024-02-27T11:00:00.000Z",
-      "createdAt": "2024-02-27T11:00:00.000Z"
-    },
-    {
-      "id": "48",
-      "userId": "1",
-      "type": "expense",
-      "amount": 42.00,
-      "categoryId": "2",
-      "description": "Gas",
-      "date": "2024-02-28T17:00:00.000Z",
-      "createdAt": "2024-02-28T17:00:00.000Z"
-    },
-    {
-      "id": "49",
       "userId": "1",
       "type": "income",
       "amount": 5000,
       "categoryId": "9",
       "description": "Monthly salary",
-      "date": "2024-03-01T09:00:00.000Z",
-      "createdAt": "2024-03-01T09:00:00.000Z"
+      "date": "2024-03-01T03:30:00.000Z",
+      "createdAt": "2024-03-01T03:30:00.000Z"
     },
     {
-      "id": "50",
+      "id": "41",
+      "userId": "1",
+      "type": "expense",
+      "amount": 146.89,
+      "categoryId": "7",
+      "description": "Online course",
+      "date": "2024-03-01T09:57:39.152Z",
+      "createdAt": "2024-03-01T09:57:39.152Z"
+    },
+    {
+      "id": "42",
+      "userId": "1",
+      "type": "expense",
+      "amount": 150.59,
+      "categoryId": "5",
+      "description": "Water bill",
+      "date": "2024-03-01T15:39:40.702Z",
+      "createdAt": "2024-03-01T15:39:40.702Z"
+    },
+    {
+      "id": "43",
       "userId": "1",
       "type": "expense",
       "amount": 1200,
       "categoryId": "5",
-      "description": "Rent",
-      "date": "2024-03-02T10:00:00.000Z",
-      "createdAt": "2024-03-02T10:00:00.000Z"
+      "description": "Rent payment",
+      "date": "2024-03-02T04:30:00.000Z",
+      "createdAt": "2024-03-02T04:30:00.000Z"
+    },
+    {
+      "id": "44",
+      "userId": "1",
+      "type": "expense",
+      "amount": 66.31,
+      "categoryId": "6",
+      "description": "Doctor visit",
+      "date": "2024-03-05T05:33:18.938Z",
+      "createdAt": "2024-03-05T05:33:18.938Z"
+    },
+    {
+      "id": "45",
+      "userId": "1",
+      "type": "expense",
+      "amount": 120.11,
+      "categoryId": "5",
+      "description": "Internet bill",
+      "date": "2024-03-06T03:12:40.016Z",
+      "createdAt": "2024-03-06T03:12:40.016Z"
+    },
+    {
+      "id": "46",
+      "userId": "1",
+      "type": "expense",
+      "amount": 42.8,
+      "categoryId": "6",
+      "description": "Pharmacy",
+      "date": "2024-03-06T15:23:49.661Z",
+      "createdAt": "2024-03-06T15:23:49.661Z"
+    },
+    {
+      "id": "47",
+      "userId": "1",
+      "type": "expense",
+      "amount": 15.75,
+      "categoryId": "8",
+      "description": "ATM withdrawal",
+      "date": "2024-03-09T00:59:59.236Z",
+      "createdAt": "2024-03-09T00:59:59.236Z"
+    },
+    {
+      "id": "48",
+      "userId": "1",
+      "type": "expense",
+      "amount": 215.09,
+      "categoryId": "7",
+      "description": "Certification exam",
+      "date": "2024-03-10T00:11:05.621Z",
+      "createdAt": "2024-03-10T00:11:05.621Z"
+    },
+    {
+      "id": "49",
+      "userId": "1",
+      "type": "expense",
+      "amount": 154.56,
+      "categoryId": "4",
+      "description": "Electronics",
+      "date": "2024-03-12T22:59:19.309Z",
+      "createdAt": "2024-03-12T22:59:19.309Z"
+    },
+    {
+      "id": "50",
+      "userId": "1",
+      "type": "income",
+      "amount": 194.65,
+      "categoryId": "11",
+      "description": "Interest income",
+      "date": "2024-03-13T04:31:03.011Z",
+      "createdAt": "2024-03-13T04:31:03.011Z"
     },
     {
       "id": "51",
       "userId": "1",
       "type": "expense",
-      "amount": 105.00,
-      "categoryId": "1",
-      "description": "Costco groceries",
-      "date": "2024-03-03T12:00:00.000Z",
-      "createdAt": "2024-03-03T12:00:00.000Z"
+      "amount": 136.53,
+      "categoryId": "5",
+      "description": "Water bill",
+      "date": "2024-03-13T07:23:42.441Z",
+      "createdAt": "2024-03-13T07:23:42.441Z"
     },
     {
       "id": "52",
       "userId": "1",
       "type": "expense",
-      "amount": 15.99,
-      "categoryId": "3",
-      "description": "Netflix",
-      "date": "2024-03-05T00:00:00.000Z",
-      "createdAt": "2024-03-05T00:00:00.000Z"
+      "amount": 20.98,
+      "categoryId": "1",
+      "description": "Fast food",
+      "date": "2024-03-16T01:00:39.178Z",
+      "createdAt": "2024-03-16T01:00:39.178Z"
     },
     {
       "id": "53",
       "userId": "1",
       "type": "expense",
-      "amount": 250.00,
-      "categoryId": "4",
-      "description": "New monitor",
-      "date": "2024-03-08T14:00:00.000Z",
-      "createdAt": "2024-03-08T14:00:00.000Z"
+      "amount": 50.63,
+      "categoryId": "1",
+      "description": "Coffee shop",
+      "date": "2024-03-17T04:49:11.306Z",
+      "createdAt": "2024-03-17T04:49:11.306Z"
     },
     {
       "id": "54",
       "userId": "1",
       "type": "expense",
-      "amount": 55.00,
-      "categoryId": "2",
-      "description": "Gas and car wash",
-      "date": "2024-03-10T16:00:00.000Z",
-      "createdAt": "2024-03-10T16:00:00.000Z"
+      "amount": 107.03,
+      "categoryId": "6",
+      "description": "Dental checkup",
+      "date": "2024-03-18T20:00:08.935Z",
+      "createdAt": "2024-03-18T20:00:08.935Z"
     },
     {
       "id": "55",
       "userId": "1",
-      "type": "income",
-      "amount": 600,
-      "categoryId": "10",
-      "description": "Side project payment",
-      "date": "2024-03-11T11:00:00.000Z",
-      "createdAt": "2024-03-11T11:00:00.000Z"
+      "type": "expense",
+      "amount": 194.87,
+      "categoryId": "7",
+      "description": "Certification exam",
+      "date": "2024-03-22T23:53:02.450Z",
+      "createdAt": "2024-03-22T23:53:02.450Z"
     },
     {
       "id": "56",
       "userId": "1",
       "type": "expense",
-      "amount": 150.00,
-      "categoryId": "6",
-      "description": "Gym membership",
-      "date": "2024-03-12T08:00:00.000Z",
-      "createdAt": "2024-03-12T08:00:00.000Z"
+      "amount": 79.15,
+      "categoryId": "1",
+      "description": "Restaurant dinner",
+      "date": "2024-03-24T02:44:58.142Z",
+      "createdAt": "2024-03-24T02:44:58.142Z"
     },
     {
       "id": "57",
       "userId": "1",
       "type": "expense",
-      "amount": 78.00,
+      "amount": 54.56,
       "categoryId": "1",
-      "description": "Weekly groceries",
-      "date": "2024-03-14T10:00:00.000Z",
-      "createdAt": "2024-03-14T10:00:00.000Z"
+      "description": "Grocery shopping",
+      "date": "2024-03-24T12:18:57.932Z",
+      "createdAt": "2024-03-24T12:18:57.932Z"
     },
     {
       "id": "58",
       "userId": "1",
-      "type": "expense",
-      "amount": 130.00,
-      "categoryId": "5",
-      "description": "Electric bill",
-      "date": "2024-03-15T09:00:00.000Z",
-      "createdAt": "2024-03-15T09:00:00.000Z"
+      "type": "income",
+      "amount": 119.19,
+      "categoryId": "12",
+      "description": "Refund",
+      "date": "2024-03-24T19:27:40.337Z",
+      "createdAt": "2024-03-24T19:27:40.337Z"
     },
     {
       "id": "59",
       "userId": "1",
       "type": "expense",
-      "amount": 12.99,
+      "amount": 51.84,
       "categoryId": "3",
-      "description": "Spotify",
-      "date": "2024-03-19T00:00:00.000Z",
-      "createdAt": "2024-03-19T00:00:00.000Z"
+      "description": "Books",
+      "date": "2024-03-25T03:17:15.119Z",
+      "createdAt": "2024-03-25T03:17:15.119Z"
     },
     {
       "id": "60",
       "userId": "1",
       "type": "expense",
-      "amount": 45.00,
-      "categoryId": "6",
-      "description": "Doctor copay",
-      "date": "2024-03-20T15:00:00.000Z",
-      "createdAt": "2024-03-20T15:00:00.000Z"
+      "amount": 41.32,
+      "categoryId": "2",
+      "description": "Bus pass",
+      "date": "2024-03-27T15:39:29.865Z",
+      "createdAt": "2024-03-27T15:39:29.865Z"
+    },
+    {
+      "id": "61",
+      "userId": "1",
+      "type": "expense",
+      "amount": 191.01,
+      "categoryId": "5",
+      "description": "Internet bill",
+      "date": "2024-03-29T12:28:35.565Z",
+      "createdAt": "2024-03-29T12:28:35.565Z"
+    },
+    {
+      "id": "62",
+      "userId": "1",
+      "type": "expense",
+      "amount": 43.83,
+      "categoryId": "3",
+      "description": "Books",
+      "date": "2024-03-29T21:10:04.593Z",
+      "createdAt": "2024-03-29T21:10:04.593Z"
+    },
+    {
+      "id": "63",
+      "userId": "1",
+      "type": "expense",
+      "amount": 17.31,
+      "categoryId": "2",
+      "description": "Car maintenance",
+      "date": "2024-03-30T08:49:16.149Z",
+      "createdAt": "2024-03-30T08:49:16.149Z"
     }
   ],
   "budgets": [
@@ -807,7 +837,7 @@
       "id": "16",
       "userId": "1",
       "categoryId": "4",
-      "amount": 400,
+      "amount": 300,
       "month": "2024-03"
     },
     {

@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "api": "node api/server.js",
-    "api:seed": "node api/seed.js",
+    "api": "node api/server.cjs",
+    "api:seed": "node api/seed.cjs",
     "dev:all": "concurrently \"npm run dev\" \"npm run api\""
   },
   "dependencies": {
