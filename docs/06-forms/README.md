@@ -764,32 +764,301 @@ export type BudgetFormData = z.infer<typeof budgetSchema>
 
 ---
 
+## 10. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Forgetting to Use forwardRef for Custom Inputs
+
+```tsx
+// ❌ Bug: register can't connect to the input
+const MyInput = ({ ...props }) => {
+  return <input {...props} />
+}
+
+<MyInput {...register('name')} />  // Won't work!
+
+// ✅ Fix: Use forwardRef
+const MyInput = forwardRef<HTMLInputElement, InputProps>(
+  (props, ref) => <input ref={ref} {...props} />
+)
+
+<MyInput {...register('name')} />  // Works!
+```
+
+### Pitfall 2: Number Inputs Returning Strings
+
+```tsx
+// ❌ Bug: amount is a string, not a number
+<input type="number" {...register('amount')} />
+// Data: { amount: "100" }  ← String!
+
+// ✅ Fix: Use valueAsNumber
+<input type="number" {...register('amount', { valueAsNumber: true })} />
+// Data: { amount: 100 }  ← Number!
+
+// ✅ Or coerce in Zod
+const schema = z.object({
+  amount: z.coerce.number().positive(),
+})
+```
+
+### Pitfall 3: Not Resetting Form After Submit
+
+```tsx
+// ❌ Bug: Form keeps old values after successful submit
+const onSubmit = async (data) => {
+  await api.createTransaction(data)
+  // Form still shows the submitted data
+}
+
+// ✅ Fix: Reset the form
+const { reset } = useForm()
+
+const onSubmit = async (data) => {
+  await api.createTransaction(data)
+  reset()  // Clear the form
+}
+```
+
+### Pitfall 4: Validation Not Triggering
+
+```tsx
+// ❌ Bug: Validation only on submit, not on change
+const { register, handleSubmit } = useForm({
+  mode: 'onSubmit',  // Default - validates only on submit
+})
+
+// ✅ Fix: Use appropriate mode for your UX
+const { register, handleSubmit } = useForm({
+  mode: 'onChange',  // Validates on every change
+  // or
+  mode: 'onBlur',    // Validates when field loses focus
+  // or
+  mode: 'onTouched', // Validates on blur, then on change
+})
+```
+
+### Pitfall 5: Zod Schema and TypeScript Mismatch
+
+```tsx
+// ❌ Bug: Schema and type don't match
+const schema = z.object({
+  name: z.string(),
+  age: z.number(),
+})
+
+interface FormData {
+  name: string
+  age: string  // Mismatch! Schema says number
+}
+
+// ✅ Fix: Infer type from schema
+const schema = z.object({
+  name: z.string(),
+  age: z.coerce.number(),
+})
+
+type FormData = z.infer<typeof schema>
+// { name: string; age: number }
+```
+
+### Pitfall 6: Form State Not Updating UI
+
+```tsx
+// ❌ Bug: Button doesn't disable during submission
+<Button disabled={formState.isSubmitting}>Submit</Button>  // Wrong destructure
+
+// ✅ Fix: Destructure from useForm return value
+const {
+  formState: { isSubmitting, errors, isValid }
+} = useForm()
+
+<Button disabled={isSubmitting}>Submit</Button>
+```
+
+### Debugging Tips
+
+1. **Use React Hook Form DevTools**:
+   ```tsx
+   import { DevTool } from '@hookform/devtools'
+
+   const { control } = useForm()
+
+   return (
+     <>
+       <form>{/* ... */}</form>
+       <DevTool control={control} />  {/* Opens a debugging panel */}
+     </>
+   )
+   ```
+
+2. **Console log form values**:
+   ```tsx
+   const values = watch()
+   console.log('Current form values:', values)
+   ```
+
+3. **Check for validation errors**:
+   ```tsx
+   const { formState: { errors } } = useForm()
+   useEffect(() => {
+     console.log('Validation errors:', errors)
+   }, [errors])
+   ```
+
+4. **Verify Zod schema separately**:
+   ```tsx
+   // Test your schema independently
+   const result = schema.safeParse({ name: '', amount: -5 })
+   console.log(result.success)  // false
+   console.log(result.error?.issues)  // Array of validation issues
+   ```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Login Form
 
-Create a complete login form with:
+**Challenge**: Create a complete login form with validation and submit handling.
+
+Requirements:
 - Email and password fields
 - Validation with Zod
 - Error display
 - Submit handling
 - Loading state
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Create a Zod schema with email and password validation
+2. Use `zodResolver` with `useForm`
+3. Use `formState.isSubmitting` for loading state
+4. Display errors using `errors.fieldName?.message`
+
+```tsx
+// Schema pattern:
+const loginSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+// Form setup:
+const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  resolver: zodResolver(loginSchema),
+})
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Empty form shows validation errors on submit
+- [ ] Invalid email shows "Invalid email" error
+- [ ] Valid form submits successfully
+- [ ] Button shows loading state during submission
+- [ ] Errors clear when user types in the field
+
+</details>
+
+---
+
 ### Exercise 2: Budget Form
 
-Create a budget form with:
-- Category dropdown
-- Amount input
-- Month selector
-- Validation
+**Challenge**: Create a budget form with a category dropdown, amount input, and month selector.
+
+Requirements:
+- Category dropdown (populated from categories data)
+- Amount input (positive numbers only)
+- Month selector (current month default)
+- Validation for all fields
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Use a select element for category (with `register`)
+2. Use `valueAsNumber: true` for the amount input
+3. For month, use an input with `type="month"`
+4. Default the month to current: `format(new Date(), 'yyyy-MM')`
+
+```tsx
+// Schema:
+const budgetSchema = z.object({
+  categoryId: z.string().min(1, 'Select a category'),
+  amount: z.number().positive('Amount must be positive'),
+  month: z.string().min(1, 'Select a month'),
+})
+
+// Month default:
+defaultValues: {
+  month: format(new Date(), 'yyyy-MM'),
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Category dropdown shows all available categories
+- [ ] Negative amount shows validation error
+- [ ] Month defaults to current month
+- [ ] Submitting with empty category shows error
+- [ ] Form resets after successful submission
+
+</details>
+
+---
 
 ### Exercise 3: Search with Filters
 
-Create a search form with:
-- Search input
+**Challenge**: Create a search/filter form that updates results as you type.
+
+Requirements:
+- Search input with debounce
 - Type filter (all/income/expense)
-- Date range
-- Reset button
+- Date range (start and end)
+- Reset button to clear all filters
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Use `watch` to observe form values
+2. Use `useDebounce` hook for search input
+3. For type, use radio buttons or a select
+4. `reset()` clears all fields to default values
+
+```tsx
+// Watch all values:
+const filters = watch()
+
+// Reset to defaults:
+const handleReset = () => {
+  reset({
+    search: '',
+    type: 'all',
+    startDate: '',
+    endDate: '',
+  })
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Typing in search filters results (with debounce)
+- [ ] Selecting "income" shows only income transactions
+- [ ] Date range filters to selected dates
+- [ ] Reset button clears all filters
+- [ ] Filters can be combined (search + type + date)
+
+</details>
 
 ---
 

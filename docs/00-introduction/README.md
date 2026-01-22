@@ -103,19 +103,60 @@ Before starting this tutorial, you should have:
 
 ## How to Use This Tutorial
 
+### Learning Approach
+
 1. **Follow in Order**: Each module builds on the previous one
 2. **Code Along**: Type the code yourself instead of copy-pasting
 3. **Experiment**: Try modifying the code to deepen understanding
-4. **Complete Exercises**: Each module has practice exercises
+4. **Complete Exercises**: Each module has practice exercises with:
+   - **Challenge**: What you need to build
+   - **Hints**: Expandable tips if you get stuck
+   - **Verification**: Checklist to confirm your solution works
 5. **Reference Code**: Complete code is available for each module
+
+### Tips for Success
+
+- **Don't skip the exercises** - They're where real learning happens
+- **Embrace errors** - Reading error messages is a core skill
+- **Use React DevTools** - Install the browser extension from day one
+- **Take breaks** - If stuck for 15+ minutes, step away and return fresh
+- **Build muscle memory** - Type code instead of copy-pasting
+
+### Each Module Contains
+
+- 📖 **Concepts**: Theory and explanations
+- 💻 **Code Examples**: Working code from the actual app
+- ⚠️ **Common Pitfalls**: Mistakes to avoid
+- 🐛 **Debugging Tips**: How to troubleshoot issues
+- ✏️ **Exercises**: Hands-on practice with hints
+- ✅ **Checkpoint**: Verify your progress
 
 ## Getting Help
 
 If you get stuck:
-1. Check the complete code reference for the module
-2. Review the concepts section
-3. Search for the error message online
-4. Take a break and come back fresh
+1. **Read the error message** - It often tells you exactly what's wrong
+2. **Check the Pitfalls section** - Your issue might be covered
+3. **Use the hints** - Expand them if you're stuck on exercises
+4. **Review the concepts** - Re-read the relevant section
+5. **Take a break** - Fresh eyes often spot the issue
+
+## Quick Reference
+
+As you work through the tutorial, use these helpful resources:
+
+**[Quick Reference Guide](../QUICK-REFERENCE.md)** - Cheat sheet for:
+- Common React patterns and syntax
+- Hook usage examples
+- TypeScript tips
+- Debugging checklist
+
+**[Troubleshooting Guide](../TROUBLESHOOTING.md)** - Solutions for:
+- Setup issues
+- Common React errors
+- TypeScript errors
+- Library-specific issues (TanStack Query, Zustand, etc.)
+
+---
 
 ## Next Steps
 

@@ -39,7 +39,7 @@ export function Login() {
       setAuth(response.user, response.token)
       toast.success(`Welcome back, ${response.user.name}!`)
       navigate(from, { replace: true })
-    } catch (error) {
+    } catch {
       toast.error('Invalid email or password')
     } finally {
       setIsSubmitting(false)

@@ -841,19 +841,202 @@ const Chart = () => {
 
 ---
 
+## 9. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: ResponsiveContainer Not Rendering
+
+```tsx
+// ❌ Bug: Chart doesn't appear (0 height)
+<div>
+  <ResponsiveContainer width="100%" height="100%">  {/* Parent has no height! */}
+    <PieChart>{/* ... */}</PieChart>
+  </ResponsiveContainer>
+</div>
+
+// ✅ Fix: Give parent explicit height or use fixed height
+<div className="h-80">  {/* Parent has height */}
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>{/* ... */}</PieChart>
+  </ResponsiveContainer>
+</div>
+
+// ✅ Or use fixed height on ResponsiveContainer
+<ResponsiveContainer width="100%" height={300}>
+  <PieChart>{/* ... */}</PieChart>
+</ResponsiveContainer>
+```
+
+### Pitfall 2: Missing Key Props in Chart Data
+
+```tsx
+// ❌ Warning: Each child should have a unique "key" prop
+<Pie data={data}>
+  {data.map((entry) => (
+    <Cell fill={entry.color} />  // Missing key!
+  ))}
+</Pie>
+
+// ✅ Fix: Add key to Cell components
+<Pie data={data}>
+  {data.map((entry, index) => (
+    <Cell key={`cell-${index}`} fill={entry.color} />
+  ))}
+</Pie>
+```
+
+### Pitfall 3: Data Shape Mismatch
+
+```tsx
+// ❌ Bug: Chart shows nothing (wrong data key)
+const data = [{ name: 'Food', amount: 500 }]
+
+<Bar dataKey="value" />  // Looking for "value" but data has "amount"
+
+// ✅ Fix: Match dataKey to actual property name
+<Bar dataKey="amount" />
+```
+
+### Pitfall 4: Tooltip Formatter Type Errors
+
+```tsx
+// ❌ Bug: TypeScript error or wrong formatting
+<Tooltip formatter={(value) => value.toFixed(2)} />  // value might not be number
+
+// ✅ Fix: Type the formatter properly
+<Tooltip
+  formatter={(value: number) => `$${value.toFixed(2)}`}
+/>
+
+// ✅ Or with more complex formatting
+<Tooltip
+  formatter={(value: number, name: string) => [
+    formatCurrency(value),
+    name === 'income' ? 'Income' : 'Expenses'
+  ]}
+/>
+```
+
+### Pitfall 5: Charts Not Updating When Data Changes
+
+```tsx
+// ❌ Bug: Chart doesn't update when data changes
+const ChartComponent = ({ transactions }) => {
+  const data = calculateChartData(transactions)  // Recalculates every render
+
+  return <PieChart data={data} />
+}
+
+// ✅ Fix: Memoize the calculation
+const ChartComponent = ({ transactions }) => {
+  const data = useMemo(
+    () => calculateChartData(transactions),
+    [transactions]
+  )
+
+  return <PieChart data={data} />
+}
+```
+
+### Debugging Tips
+
+1. **Check data in console**: Log the data array before passing to chart
+   ```tsx
+   console.log('Chart data:', data)
+   ```
+
+2. **Inspect element dimensions**: If chart doesn't render, check container height in DevTools
+
+3. **Simplify first**: Start with hardcoded data to verify chart works, then add dynamic data
+
+4. **Check Recharts documentation**: Each chart type has specific required props
+
+5. **Use browser DevTools**: Recharts renders SVG - inspect the SVG elements to debug
+
+---
+
 ## Exercises
 
 ### Exercise 1: Daily Spending Chart
 
-Create a line chart showing daily spending for the current month.
+**Challenge**: Create a line chart showing daily spending for the current month.
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Group transactions by day using `date-fns` or native Date methods
+2. Use `LineChart` with `Line` component
+3. Format X-axis dates to show day numbers (1, 2, 3...)
+4. Handle days with no spending (show as 0)
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Chart shows all days of the current month
+- [ ] Days with spending show correct amounts
+- [ ] Days with no spending show 0 (not missing)
+- [ ] Tooltip shows formatted amount on hover
+- [ ] Chart is responsive on different screen sizes
+
+</details>
+
+---
 
 ### Exercise 2: Category Comparison
 
-Create a grouped bar chart comparing spending across categories between two months.
+**Challenge**: Create a grouped bar chart comparing spending across categories between two months.
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Structure data as: `{ category: 'Food', lastMonth: 500, thisMonth: 450 }`
+2. Use `BarChart` with two `Bar` components (one per month)
+3. Different colors for each month
+4. Add a Legend to distinguish months
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Shows side-by-side bars for each category
+- [ ] Legend clearly labels each month
+- [ ] Colors are distinct and accessible
+- [ ] Tooltip shows both values on hover
+- [ ] Categories with no spending in one month still show
+
+</details>
+
+---
 
 ### Exercise 3: Interactive Budget Editor
 
-Add click handlers to the budget progress bars to open an edit modal.
+**Challenge**: Add click handlers to the budget progress bars to open an edit modal.
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Add `onClick` to the progress bar container
+2. Store selected budget in state: `const [selectedBudget, setSelectedBudget] = useState(null)`
+3. Open modal when budget is selected
+4. Pass budget data to modal form
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Clicking a budget opens the edit modal
+- [ ] Modal shows current budget amount
+- [ ] Saving updates the budget and closes modal
+- [ ] Cancel closes modal without saving
+- [ ] Progress bar updates after editing
+
+</details>
 
 ---
 

@@ -14,7 +14,8 @@ export function Budgets() {
   const { data: transactionsData, isLoading: transactionsLoading } = useTransactions()
   const { data: categories, isLoading: categoriesLoading } = useCategories()
 
-  const transactions = transactionsData?.data || []
+  // Memoize transactions to avoid triggering dependent useMemo hooks on every render
+  const transactions = useMemo(() => transactionsData?.data || [], [transactionsData?.data])
 
   // Filter budgets for current month
   const currentMonthBudgets = useMemo(

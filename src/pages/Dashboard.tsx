@@ -26,7 +26,8 @@ export function Dashboard() {
   const { data: categories, isLoading: categoriesLoading } = useCategories()
   const { data: budgets, isLoading: budgetsLoading } = useBudgetsByMonth(currentMonth)
 
-  const transactions = transactionsData?.data || []
+  // Memoize transactions to avoid triggering dependent useMemo hooks on every render
+  const transactions = useMemo(() => transactionsData?.data || [], [transactionsData?.data])
 
   // Calculate dashboard stats
   const stats = useMemo(() => {

@@ -673,35 +673,270 @@ const Dashboard = lazy(() =>
 
 ---
 
+## 12. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: NavLink `end` Prop for Root Path
+
+```tsx
+// ❌ Bug: "/" is always active because all paths start with "/"
+<NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''}>
+  Dashboard
+</NavLink>
+
+// ✅ Fix: Use the `end` prop to match exactly
+<NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
+  Dashboard
+</NavLink>
+```
+
+### Pitfall 2: Forgetting to Handle Missing Route Params
+
+```tsx
+// ❌ Bug: Crashes if id is undefined
+const TransactionDetail = () => {
+  const { id } = useParams()
+  const { data } = useTransaction(id)  // id could be undefined!
+}
+
+// ✅ Fix: Handle the undefined case
+const TransactionDetail = () => {
+  const { id } = useParams()
+
+  if (!id) {
+    return <Navigate to="/transactions" replace />
+  }
+
+  const { data } = useTransaction(id)
+}
+```
+
+### Pitfall 3: Navigate vs useNavigate Confusion
+
+```tsx
+// ❌ Wrong: Using Navigate component in event handler
+const handleClick = () => {
+  <Navigate to="/dashboard" />  // Does nothing!
+}
+
+// ✅ Fix: Use useNavigate hook for programmatic navigation
+const navigate = useNavigate()
+const handleClick = () => {
+  navigate('/dashboard')
+}
+
+// Navigate component is for redirects in render:
+if (!isLoggedIn) {
+  return <Navigate to="/login" replace />
+}
+```
+
+### Pitfall 4: Search Params Not Preserved on Navigation
+
+```tsx
+// ❌ Bug: Navigating loses search params
+const { page } = useSearchParams()
+navigate('/transactions')  // Loses ?page=2
+
+// ✅ Fix: Preserve search params when needed
+const [searchParams] = useSearchParams()
+navigate(`/transactions?${searchParams.toString()}`)
+
+// Or use relative navigation
+navigate({ search: searchParams.toString() })
+```
+
+### Pitfall 5: Protected Route Infinite Redirects
+
+```tsx
+// ❌ Bug: Redirects even after login (state not saved)
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />  // Missing 'replace' causes history issues
+  }
+
+  return children
+}
+
+// ✅ Fix: Use replace and save intended destination
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+  const location = useLocation()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
+}
+```
+
+### Debugging Tips
+
+1. **Check the URL**: Use React Router Devtools or browser devtools to see current route state
+2. **Log route params**: `console.log(useParams())` to verify params are captured
+3. **Check route order**: More specific routes should come before catch-all routes
+4. **Verify path matching**: Route paths are case-sensitive by default
+5. **Use the `*` catch-all carefully**: Place it last to handle 404s
+
+```tsx
+// Route order matters!
+<Routes>
+  {/* Specific routes first */}
+  <Route path="/transactions/new" element={<NewTransaction />} />
+  <Route path="/transactions/:id" element={<TransactionDetail />} />
+  <Route path="/transactions" element={<TransactionList />} />
+
+  {/* Catch-all last */}
+  <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Breadcrumbs
 
-Create a breadcrumb component that shows the current navigation path:
+**Challenge**: Create a breadcrumb component that shows the current navigation path.
 
 ```tsx
 // Expected output for /transactions/123:
 // Home > Transactions > Transaction Details
 ```
 
-### Exercise 2: Tab Navigation
+<details>
+<summary>💡 Hints</summary>
 
-Create a tabbed interface for the transaction detail page:
+1. Use `useLocation()` to get the current path
+2. Split the pathname by `/` to get segments
+3. Build up the path progressively for each breadcrumb link
+4. Use a map of paths to labels for readable names
 
 ```tsx
-// /transactions/123 - Overview tab
+// Pattern:
+const location = useLocation()
+const segments = location.pathname.split('/').filter(Boolean)
+
+// Build breadcrumbs:
+// '/transactions/123' -> ['transactions', '123']
+// Links: '/' (Home), '/transactions', '/transactions/123'
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Home page shows just "Home"
+- [ ] `/transactions` shows "Home > Transactions"
+- [ ] `/transactions/123` shows "Home > Transactions > Transaction Details"
+- [ ] Each breadcrumb (except last) is clickable
+- [ ] Current page is not a link (just text)
+
+</details>
+
+---
+
+### Exercise 2: Tab Navigation
+
+**Challenge**: Create a tabbed interface for the transaction detail page using nested routes.
+
+```tsx
+// /transactions/123 - Overview tab (default)
 // /transactions/123/history - History tab
 // /transactions/123/related - Related tab
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Create nested routes inside the transaction detail route
+2. Use `<NavLink>` for tabs with active styling
+3. Use `<Outlet>` to render the active tab content
+4. Use index route for the default tab
+
+```tsx
+// Route structure:
+<Route path="/transactions/:id" element={<TransactionDetail />}>
+  <Route index element={<OverviewTab />} />
+  <Route path="history" element={<HistoryTab />} />
+  <Route path="related" element={<RelatedTab />} />
+</Route>
+
+// In TransactionDetail:
+<nav>
+  <NavLink to="" end>Overview</NavLink>
+  <NavLink to="history">History</NavLink>
+  <NavLink to="related">Related</NavLink>
+</nav>
+<Outlet />
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Default tab (Overview) shows on `/transactions/123`
+- [ ] Clicking History navigates to `/transactions/123/history`
+- [ ] Active tab has different styling
+- [ ] Tab content changes when URL changes
+- [ ] Browser back/forward works with tabs
+
+</details>
+
+---
+
 ### Exercise 3: Pagination
 
-Implement URL-based pagination for the transactions list:
+**Challenge**: Implement URL-based pagination for the transactions list.
 
 ```tsx
 // /transactions?page=1&limit=10
 // /transactions?page=2&limit=10
 ```
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Use `useSearchParams()` to read and set query params
+2. Default to page 1 and limit 10 if not in URL
+3. Create Previous/Next buttons that update the URL
+4. Calculate total pages from total items
+
+```tsx
+// Pattern:
+const [searchParams, setSearchParams] = useSearchParams()
+const page = parseInt(searchParams.get('page') || '1')
+const limit = parseInt(searchParams.get('limit') || '10')
+
+const goToPage = (newPage: number) => {
+  setSearchParams({ page: newPage.toString(), limit: limit.toString() })
+}
+
+// Calculate slice of data to show:
+const startIndex = (page - 1) * limit
+const pageData = transactions.slice(startIndex, startIndex + limit)
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] First load shows page 1
+- [ ] Clicking Next updates URL to page=2
+- [ ] Previous button is disabled on page 1
+- [ ] Next button is disabled on last page
+- [ ] Manually changing URL updates the view
+- [ ] Refreshing the page maintains pagination state
+
+</details>
 
 ---
 

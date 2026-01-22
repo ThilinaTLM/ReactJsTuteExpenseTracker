@@ -719,28 +719,296 @@ export const Dashboard = () => {
 
 ---
 
+## 11. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Query Key Mismatch
+
+```tsx
+// ❌ Bug: Different query keys = different caches
+useQuery({
+  queryKey: ['transactions'],  // Component A uses this
+  queryFn: fetchTransactions,
+})
+
+useQuery({
+  queryKey: ['all-transactions'],  // Component B uses this - separate cache!
+  queryFn: fetchTransactions,
+})
+
+// ✅ Fix: Use consistent query keys (ideally from a factory)
+const queryKeys = {
+  all: ['transactions'] as const,
+  byId: (id: string) => ['transactions', id] as const,
+  byUser: (userId: string) => ['transactions', 'user', userId] as const,
+}
+
+// Both components now share the same cache
+useQuery({
+  queryKey: queryKeys.all,
+  queryFn: fetchTransactions,
+})
+```
+
+### Pitfall 2: Forgetting to Handle Loading/Error States
+
+```tsx
+// ❌ Bug: data might be undefined on first render
+const { data } = useTransactions()
+return <div>{data.length} transactions</div>  // 💥 Crash!
+
+// ✅ Fix: Always handle loading and error states
+const { data, isLoading, isError } = useTransactions()
+
+if (isLoading) return <Skeleton />
+if (isError) return <ErrorMessage />
+if (!data) return <EmptyState />
+
+return <div>{data.length} transactions</div>
+```
+
+### Pitfall 3: Not Using `enabled` for Conditional Queries
+
+```tsx
+// ❌ Bug: Query runs immediately, even when userId is undefined
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId!),  // Danger: userId could be undefined!
+})
+
+// ✅ Fix: Use enabled to prevent premature execution
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId!),
+  enabled: !!userId,  // Only runs when userId exists
+})
+```
+
+### Pitfall 4: Stale Data After Mutation
+
+```tsx
+// ❌ Bug: Cache not updated after creating transaction
+const createMutation = useMutation({
+  mutationFn: createTransaction,
+  onSuccess: () => {
+    // Forgot to invalidate! List still shows old data
+  },
+})
+
+// ✅ Fix: Invalidate related queries
+const createMutation = useMutation({
+  mutationFn: createTransaction,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['transactions'] })
+  },
+})
+```
+
+### Pitfall 5: Query Function Not Throwing on Error
+
+```tsx
+// ❌ Bug: fetch doesn't throw on HTTP errors
+const { data } = useQuery({
+  queryKey: ['data'],
+  queryFn: async () => {
+    const response = await fetch('/api/data')
+    return response.json()  // Returns error response as "success"!
+  },
+})
+
+// ✅ Fix: Check response status and throw
+const { data } = useQuery({
+  queryKey: ['data'],
+  queryFn: async () => {
+    const response = await fetch('/api/data')
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`)
+    }
+    return response.json()
+  },
+})
+```
+
+### Debugging Tips
+
+1. **Install React Query Devtools**: Essential for debugging queries
+   ```tsx
+   import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+   // In your App component
+   <QueryClientProvider client={queryClient}>
+     <App />
+     <ReactQueryDevtools initialIsOpen={false} />
+   </QueryClientProvider>
+   ```
+
+2. **Check the Devtools panel for**:
+   - Query status (fresh, stale, fetching, inactive)
+   - Cached data
+   - Query key structure
+   - Number of observers (components using the query)
+
+3. **Common issues to check**:
+   - Is the query key correct?
+   - Is `enabled` preventing the query from running?
+   - Is the data being cached but appearing stale?
+   - Did a mutation invalidate the correct queries?
+
+4. **Enable query logging during development**:
+   ```tsx
+   const queryClient = new QueryClient({
+     defaultOptions: {
+       queries: {
+         // Log all query events in development
+         onError: (error) => console.error('Query error:', error),
+       },
+     },
+   })
+   ```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Categories Query
 
-Create a `useCategories` hook that:
-- Fetches all categories
-- Has infinite stale time (data rarely changes)
-- Provides a `getCategoryById` helper
+**Challenge**: Create a `useCategories` hook optimized for rarely-changing data.
+
+Requirements:
+- Fetches all categories from API
+- Has infinite stale time (categories rarely change)
+- Provides a `getCategoryById` helper function
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Set `staleTime: Infinity` to prevent background refetches
+2. Use `useMemo` for the `getCategoryById` helper
+3. The helper should return undefined if not found
+
+```tsx
+// Pattern:
+const useCategories = () => {
+  const query = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoriesService.getAll,
+    staleTime: Infinity,  // Never consider stale
+  })
+
+  const getCategoryById = useMemo(() => {
+    return (id: string) => query.data?.find(c => c.id === id)
+  }, [query.data])
+
+  return { ...query, getCategoryById }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Categories load on first mount
+- [ ] Navigating away and back doesn't refetch (check Network tab)
+- [ ] `getCategoryById` returns correct category
+- [ ] `getCategoryById` returns undefined for invalid ID
+
+</details>
+
+---
 
 ### Exercise 2: Filtered Transactions
 
-Create a `useFilteredTransactions` hook that:
-- Accepts filter parameters
-- Uses query key with filters
-- Transforms data based on filters
+**Challenge**: Create a `useFilteredTransactions` hook that accepts filter parameters and includes them in the query key.
+
+Requirements:
+- Accept filter object as parameter
+- Include filters in query key (so different filters = different cache entries)
+- Pass filters to API (if your API supports filtering)
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Include filter values in the query key
+2. Pass filters to your query function
+3. Only include defined filters in the key
+
+```tsx
+// Pattern:
+const useFilteredTransactions = (filters: Filters) => {
+  return useQuery({
+    queryKey: ['transactions', filters],  // Filters in key!
+    queryFn: () => transactionsService.getAll(filters),
+    // Optionally filter client-side if API doesn't support:
+    select: (data) => data.filter(/* ... */),
+  })
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Changing filter refetches data (or filters client-side)
+- [ ] Going back to previous filter uses cached data
+- [ ] Empty filters work correctly
+- [ ] Query key in DevTools shows filter values
+
+</details>
+
+---
 
 ### Exercise 3: Dashboard Stats
 
-Create a `useDashboardStats` hook that:
-- Uses the transactions query
-- Calculates income, expenses, and balance
-- Memoizes the calculation
+**Challenge**: Create a `useDashboardStats` hook that derives statistics from transaction data.
+
+Requirements:
+- Reuse the transactions query (don't fetch twice)
+- Calculate total income, expenses, and balance
+- Memoize the calculation
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Use `useTransactions` internally (don't create new query)
+2. Use `useMemo` to avoid recalculating on every render
+3. Handle the case when data is undefined
+
+```tsx
+// Pattern:
+const useDashboardStats = () => {
+  const { data: transactions, ...rest } = useTransactions()
+
+  const stats = useMemo(() => {
+    if (!transactions) return null
+
+    const income = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    // ... calculate expenses, balance
+
+    return { income, expenses, balance }
+  }, [transactions])
+
+  return { ...rest, stats }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Stats calculate correctly from transaction data
+- [ ] Adding a transaction updates the stats
+- [ ] Loading state works while data is fetching
+- [ ] Calculation only runs when transactions change (add console.log)
+
+</details>
 
 ---
 

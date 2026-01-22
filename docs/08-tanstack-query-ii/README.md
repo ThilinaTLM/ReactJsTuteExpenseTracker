@@ -690,28 +690,376 @@ const handleSubmit = async (data: FormData) => {
 
 ---
 
+## 11. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Forgetting to Invalidate Related Queries
+
+```tsx
+// ❌ Bug: Dashboard stats still show old totals after creating transaction
+const useCreateTransaction = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      // Forgot to invalidate related data!
+    },
+  })
+}
+
+// ✅ Fix: Invalidate all affected queries
+const useCreateTransaction = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['budgets'] })  // Budget progress changes
+      queryClient.invalidateQueries({ queryKey: ['stats'] })    // Dashboard stats change
+    },
+  })
+}
+```
+
+### Pitfall 2: Optimistic Update Without Proper Rollback
+
+```tsx
+// ❌ Bug: No rollback on error leaves UI in inconsistent state
+const useDeleteTransaction = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteTransaction,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] })
+      const previous = queryClient.getQueryData(['transactions'])
+
+      queryClient.setQueryData(['transactions'], (old) =>
+        old.filter(t => t.id !== id)
+      )
+
+      // Forgot to return context for rollback!
+    },
+    onError: (err, id, context) => {
+      // context is undefined!
+      queryClient.setQueryData(['transactions'], context?.previous)
+    },
+  })
+}
+
+// ✅ Fix: Return context from onMutate
+const useDeleteTransaction = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteTransaction,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] })
+      const previous = queryClient.getQueryData(['transactions'])
+
+      queryClient.setQueryData(['transactions'], (old) =>
+        old.filter(t => t.id !== id)
+      )
+
+      return { previous }  // Return for rollback
+    },
+    onError: (err, id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['transactions'], context.previous)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+    },
+  })
+}
+```
+
+### Pitfall 3: Using mutate() When You Need mutateAsync()
+
+```tsx
+// ❌ Bug: Can't await or catch errors
+const handleSubmit = async (data) => {
+  createMutation.mutate(data)  // Returns void
+  navigate('/success')  // Navigates before mutation completes!
+}
+
+// ✅ Fix: Use mutateAsync for sequential operations
+const handleSubmit = async (data) => {
+  try {
+    await createMutation.mutateAsync(data)  // Returns Promise
+    navigate('/success')
+  } catch (error) {
+    // Handle error
+  }
+}
+
+// Note: mutate() is fine when you handle results via callbacks
+createMutation.mutate(data, {
+  onSuccess: () => navigate('/success'),
+  onError: (error) => showToast(error.message),
+})
+```
+
+### Pitfall 4: Not Canceling Queries Before Optimistic Update
+
+```tsx
+// ❌ Bug: Race condition - old request might overwrite optimistic update
+onMutate: async (newData) => {
+  // Old in-flight request might resolve after optimistic update!
+  const previous = queryClient.getQueryData(['transactions'])
+  queryClient.setQueryData(['transactions'], (old) => [...old, newData])
+  return { previous }
+}
+
+// ✅ Fix: Cancel outgoing queries first
+onMutate: async (newData) => {
+  await queryClient.cancelQueries({ queryKey: ['transactions'] })  // Cancel first!
+  const previous = queryClient.getQueryData(['transactions'])
+  queryClient.setQueryData(['transactions'], (old) => [...old, newData])
+  return { previous }
+}
+```
+
+### Pitfall 5: Showing Loading State During Optimistic Update
+
+```tsx
+// ❌ Poor UX: Shows loading spinner even with optimistic update
+const TransactionItem = ({ transaction }) => {
+  const deleteMutation = useDeleteTransaction()
+
+  return (
+    <div>
+      {deleteMutation.isPending && <Spinner />}  {/* Unnecessary! */}
+      <button
+        onClick={() => deleteMutation.mutate(transaction.id)}
+        disabled={deleteMutation.isPending}
+      >
+        Delete
+      </button>
+    </div>
+  )
+}
+
+// ✅ Better: With optimistic updates, item is already removed from UI
+// Only show loading for non-optimistic operations
+const TransactionItem = ({ transaction }) => {
+  const deleteMutation = useDeleteTransaction()
+
+  // Item will be optimistically removed from parent list
+  // No need for local loading state
+  return (
+    <div>
+      <button onClick={() => deleteMutation.mutate(transaction.id)}>
+        Delete
+      </button>
+    </div>
+  )
+}
+```
+
+### Debugging Tips
+
+1. **Use React Query Devtools**: See mutation state, pending count, and errors
+   ```tsx
+   import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+   ```
+
+2. **Log mutation lifecycle**:
+   ```tsx
+   useMutation({
+     mutationFn: createTransaction,
+     onMutate: (data) => console.log('Starting:', data),
+     onSuccess: (result) => console.log('Success:', result),
+     onError: (error) => console.log('Error:', error),
+     onSettled: () => console.log('Settled'),
+   })
+   ```
+
+3. **Check network tab**: Verify API calls are being made correctly
+
+4. **Verify optimistic update shape**: Ensure the shape matches query data
+   ```tsx
+   onMutate: async (newTransaction) => {
+     // Log the shape to compare
+     console.log('Query data shape:', queryClient.getQueryData(['transactions']))
+     console.log('New data shape:', newTransaction)
+   }
+   ```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Edit Transaction
 
-Create an edit transaction flow with:
-- Pre-populated form
+**Challenge**: Create an edit transaction flow with optimistic updates.
+
+Requirements:
+- Pre-populated form with existing data
 - Update mutation with optimistic update
-- Success/error feedback
+- Success/error feedback via toast
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Fetch the transaction data to pre-populate the form
+2. Use `defaultValues` in useForm (or `reset` when data loads)
+3. Optimistic update should update the single item in the list
+
+```tsx
+// Pattern for optimistic update on edit:
+onMutate: async (updatedTransaction) => {
+  await queryClient.cancelQueries({ queryKey: ['transactions'] })
+  const previous = queryClient.getQueryData(['transactions'])
+
+  queryClient.setQueryData(['transactions'], (old) =>
+    old.map(t => t.id === updatedTransaction.id ? updatedTransaction : t)
+  )
+
+  return { previous }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Form is pre-filled with existing transaction data
+- [ ] Saving shows instant update (optimistic)
+- [ ] Success toast appears after save
+- [ ] Error rolls back to previous state
+- [ ] Navigation back to list after save
+
+</details>
+
+---
 
 ### Exercise 2: Bulk Delete
 
-Implement bulk delete with:
-- Selection state
-- Bulk delete mutation
-- Optimistic removal of selected items
+**Challenge**: Implement bulk delete with selection and optimistic removal.
+
+Requirements:
+- Checkbox selection for multiple items
+- "Delete Selected" button
+- Optimistic removal of all selected items
+- Confirmation dialog before deletion
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Store selected IDs in component state: `useState<Set<string>>(new Set())`
+2. Create a mutation that accepts an array of IDs
+3. Optimistic update filters out all selected items at once
+
+```tsx
+// Selection toggle:
+const toggleSelect = (id: string) => {
+  setSelected(prev => {
+    const next = new Set(prev)
+    next.has(id) ? next.delete(id) : next.add(id)
+    return next
+  })
+}
+
+// Optimistic update for bulk delete:
+onMutate: async (ids: string[]) => {
+  await queryClient.cancelQueries({ queryKey: ['transactions'] })
+  const previous = queryClient.getQueryData(['transactions'])
+
+  queryClient.setQueryData(['transactions'], (old) =>
+    old.filter(t => !ids.includes(t.id))
+  )
+
+  return { previous }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Can select multiple transactions via checkbox
+- [ ] "Delete Selected" button shows count
+- [ ] Confirmation dialog appears before delete
+- [ ] All selected items disappear immediately (optimistic)
+- [ ] Selection clears after successful delete
+- [ ] Error restores all items
+
+</details>
+
+---
 
 ### Exercise 3: Undo Delete
 
-Implement undo functionality:
+**Challenge**: Implement undo functionality with a timed soft-delete.
+
+Requirements:
 - Show toast with "Undo" button after delete
-- Restore item if undo is clicked within 5 seconds
-- Actually delete after timeout
+- Restore item if undo clicked within 5 seconds
+- Permanently delete after timeout
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Don't call the API immediately - use a timeout
+2. Store the deleted item temporarily
+3. Clear timeout and restore if undo is clicked
+4. Actually call delete API after timeout expires
+
+```tsx
+// Pattern:
+const [pendingDelete, setPendingDelete] = useState<{
+  item: Transaction
+  timeoutId: ReturnType<typeof setTimeout>
+} | null>(null)
+
+const handleDelete = (item: Transaction) => {
+  // Optimistically remove from UI
+  queryClient.setQueryData(['transactions'], old =>
+    old.filter(t => t.id !== item.id)
+  )
+
+  // Start timeout
+  const timeoutId = setTimeout(() => {
+    deleteTransaction.mutate(item.id)  // Actually delete
+    setPendingDelete(null)
+  }, 5000)
+
+  setPendingDelete({ item, timeoutId })
+  showToast({ message: 'Deleted', action: { label: 'Undo', onClick: handleUndo } })
+}
+
+const handleUndo = () => {
+  if (pendingDelete) {
+    clearTimeout(pendingDelete.timeoutId)
+    // Restore item to cache
+    queryClient.setQueryData(['transactions'], old => [...old, pendingDelete.item])
+    setPendingDelete(null)
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Item disappears immediately when deleted
+- [ ] Toast appears with "Undo" button
+- [ ] Clicking "Undo" within 5s restores the item
+- [ ] Not clicking "Undo" permanently deletes after 5s
+- [ ] Toast disappears after timeout
+- [ ] Multiple deletes in quick succession work correctly
+
+</details>
 
 ---
 

@@ -25,32 +25,32 @@ This repository is a **learn-by-doing React tutorial** that teaches React 19 dev
 ## Learning Objectives
 
 ### Fundamentals
-- [ ] JSX syntax and component composition
-- [ ] Props, state, and the unidirectional data flow
-- [ ] Event handling and controlled components
-- [ ] Conditional rendering and lists
-- [ ] useEffect and the component lifecycle
+- [x] JSX syntax and component composition (Module 02)
+- [x] Props, state, and the unidirectional data flow (Module 02, 03)
+- [x] Event handling and controlled components (Module 02, 03, 06)
+- [x] Conditional rendering and lists (Module 02)
+- [x] useEffect and the component lifecycle (Module 03)
 
 ### Intermediate Concepts
-- [ ] Custom hooks and logic reuse
-- [ ] Context API for shared state
-- [ ] Form handling with validation (React Hook Form + Zod)
-- [ ] Routing with React Router
-- [ ] Error boundaries and error handling patterns
+- [x] Custom hooks and logic reuse (Module 04)
+- [x] Context API for shared state (Module 04, with Zustand recommended for complex state)
+- [x] Form handling with validation (React Hook Form + Zod) (Module 06)
+- [x] Routing with React Router (Module 05)
+- [x] Error boundaries and error handling patterns (Module 12)
 
 ### Advanced Patterns
-- [ ] Server state management (TanStack Query)
-- [ ] Client state management (Zustand)
-- [ ] Optimistic updates and cache invalidation
-- [ ] Code splitting and lazy loading
-- [ ] Performance optimization (memo, useMemo, useCallback)
+- [x] Server state management (TanStack Query) (Modules 07, 08)
+- [x] Client state management (Zustand) (Module 09)
+- [x] Optimistic updates and cache invalidation (Module 08)
+- [x] Code splitting and lazy loading (Module 12)
+- [x] Performance optimization (memo, useMemo, useCallback) (Module 04, 12)
 
 ### Industry Practices
-- [ ] TypeScript integration from day one
-- [ ] Project structure and organization
-- [ ] API layer abstraction patterns
-- [ ] Authentication flow implementation
-- [ ] Environment configuration
+- [x] TypeScript integration from day one (All modules)
+- [x] Project structure and organization (Module 00, 01)
+- [x] API layer abstraction patterns (Module 07)
+- [x] Authentication flow implementation (Module 11)
+- [x] Environment configuration (Module 01, 12)
 
 ## Additional Goals
 

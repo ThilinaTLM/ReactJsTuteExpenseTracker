@@ -580,11 +580,105 @@ Keys help React identify which items have changed, been added, or removed:
 
 ---
 
+## 8. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Forgetting to Return JSX
+
+```tsx
+// ❌ Bug: No return statement (returns undefined)
+const Greeting = () => {
+  <h1>Hello!</h1>
+}
+
+// ✅ Fix: Add return or use implicit return
+const Greeting = () => {
+  return <h1>Hello!</h1>
+}
+// OR
+const Greeting = () => <h1>Hello!</h1>
+```
+
+### Pitfall 2: The `&&` Operator with Numbers
+
+```tsx
+// ❌ Bug: Renders "0" when count is 0
+const Notifications = ({ count }: { count: number }) => {
+  return <div>{count && <span>{count} items</span>}</div>
+}
+
+// ✅ Fix: Use explicit boolean comparison
+const Notifications = ({ count }: { count: number }) => {
+  return <div>{count > 0 && <span>{count} items</span>}</div>
+}
+```
+
+**Why?** JavaScript's `&&` returns the first falsy value. `0` is falsy but renderable, so React displays "0".
+
+### Pitfall 3: Mutating Props
+
+```tsx
+// ❌ Bug: Never mutate props!
+const BadComponent = (props: { items: string[] }) => {
+  props.items.push('New Item')  // This is wrong!
+  return <ul>{props.items.map(i => <li key={i}>{i}</li>)}</ul>
+}
+
+// ✅ Fix: Props are read-only; create new data instead
+const GoodComponent = ({ items }: { items: string[] }) => {
+  const newItems = [...items, 'New Item']
+  return <ul>{newItems.map(i => <li key={i}>{i}</li>)}</ul>
+}
+```
+
+### Pitfall 4: Missing Keys in Lists
+
+```tsx
+// ❌ Warning: Each child in a list should have a unique "key" prop
+{items.map((item) => <Item data={item} />)}
+
+// ❌ Still problematic: Index keys cause issues with reordering/deletion
+{items.map((item, index) => <Item key={index} data={item} />)}
+
+// ✅ Best: Use stable, unique identifiers
+{items.map((item) => <Item key={item.id} data={item} />)}
+```
+
+### Pitfall 5: JSX Attribute Name Confusion
+
+```tsx
+// ❌ These HTML attributes don't work in JSX
+<div class="container">        // Use className
+<label for="email">            // Use htmlFor
+<input readonly>               // Use readOnly
+<td colspan="2">               // Use colSpan
+
+// ✅ JSX uses camelCase
+<div className="container">
+<label htmlFor="email">
+<input readOnly>
+<td colSpan={2}>
+```
+
+### Debugging Tips
+
+1. **React DevTools**: Install the browser extension to inspect component trees, props, and state
+2. **Console logging in render**: Add `console.log(props)` at the top of components to see what data they receive
+3. **Check the component tree**: If a component doesn't render, verify its parent is rendering it
+4. **TypeScript errors**: Read them carefully - they often pinpoint exactly what prop is wrong
+
+### When to Use React DevTools
+
+- **Components tab**: See the component hierarchy, inspect props and state
+- **Profiler tab**: Identify which components re-render and why (covered in later modules)
+- **Highlight updates**: Enable this option to see which components re-render on the page
+
+---
+
 ## Exercises
 
 ### Exercise 1: Create a Badge Component
 
-Create a `Badge` component that displays a small label with different color variants.
+**Challenge**: Create a `Badge` component that displays a small label with different color variants.
 
 ```tsx
 // Expected usage:
@@ -593,9 +687,34 @@ Create a `Badge` component that displays a small label with different color vari
 <Badge variant="danger">Failed</Badge>
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Define a `BadgeProps` interface with `variant` and `children`
+2. Use a union type for variant: `'success' | 'warning' | 'danger'`
+3. Create a style map object to map variants to Tailwind classes
+4. Use the `cn()` utility for combining classes
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Your component should:
+- [ ] Accept `variant` prop with type safety
+- [ ] Accept `children` for the badge text
+- [ ] Render different colors based on variant
+- [ ] Have proper TypeScript types (no `any`)
+
+Test it by rendering all three variants side by side.
+
+</details>
+
+---
+
 ### Exercise 2: Create a StatCard Component
 
-Create a `StatCard` component for displaying dashboard statistics:
+**Challenge**: Create a `StatCard` component for displaying dashboard statistics.
 
 ```tsx
 // Expected usage:
@@ -607,9 +726,35 @@ Create a `StatCard` component for displaying dashboard statistics:
 />
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Props needed: `title` (string), `value` (string), `change` (number), `icon` (ReactNode)
+2. Show green text/arrow for positive change, red for negative
+3. Use conditional rendering for the change indicator
+4. Consider making `change` and `icon` optional props
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Your component should:
+- [ ] Display the title in smaller, muted text
+- [ ] Display the value prominently
+- [ ] Show change percentage with appropriate color (green/red)
+- [ ] Display the icon if provided
+- [ ] Handle undefined `change` gracefully
+
+Test with: positive change, negative change, zero change, and no change prop.
+
+</details>
+
+---
+
 ### Exercise 3: Build a Transaction Item
 
-Create a `TransactionItem` component that displays a single transaction:
+**Challenge**: Create a `TransactionItem` component that displays a single transaction.
 
 ```tsx
 // Expected usage:
@@ -623,6 +768,32 @@ Create a `TransactionItem` component that displays a single transaction:
   }}
 />
 ```
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Create a `Transaction` interface for the transaction prop
+2. Negative amounts are expenses (show in red), positive are income (show in green)
+3. Format the date using `toLocaleDateString()` or a library like `date-fns`
+4. Format currency with `toFixed(2)` and add `$` prefix
+5. Consider showing the absolute value with a +/- prefix
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Your component should:
+- [ ] Display description, amount, category, and date
+- [ ] Show expenses in red with minus sign
+- [ ] Show income in green with plus sign
+- [ ] Format the date in a readable format
+- [ ] Format currency to 2 decimal places
+- [ ] Have proper TypeScript interface for Transaction
+
+Test with both positive (income) and negative (expense) amounts.
+
+</details>
 
 ---
 

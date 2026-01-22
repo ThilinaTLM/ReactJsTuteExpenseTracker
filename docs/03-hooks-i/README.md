@@ -611,11 +611,166 @@ export const ThemeToggle = () => {
 
 ---
 
+## 8. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Stale Closures in useEffect
+
+```tsx
+// ❌ Bug: Always logs the initial count (0), not the current value
+const [count, setCount] = useState(0)
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    console.log('Count is:', count)  // Always 0!
+  }, 1000)
+  return () => clearInterval(interval)
+}, [])  // Empty deps = effect only sees initial values
+
+// ✅ Fix: Add count to dependencies
+useEffect(() => {
+  const interval = setInterval(() => {
+    console.log('Count is:', count)  // Now shows current value
+  }, 1000)
+  return () => clearInterval(interval)
+}, [count])  // Re-creates interval when count changes
+
+// ✅ Alternative Fix: Use functional update to avoid needing the dependency
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCount(prev => {
+      console.log('Count is:', prev)  // Works!
+      return prev + 1
+    })
+  }, 1000)
+  return () => clearInterval(interval)
+}, [])  // No dependency needed for setCount
+```
+
+### Pitfall 2: Object/Array Reference Changes
+
+```tsx
+// ❌ Bug: Effect runs on every render (new object reference each time)
+const [user, setUser] = useState({ name: 'Alice' })
+
+useEffect(() => {
+  console.log('User changed:', user)
+}, [user])  // Triggers even when values are the same
+
+// ✅ Fix: Depend on specific primitive values
+useEffect(() => {
+  console.log('Name changed:', user.name)
+}, [user.name])  // Only triggers when name actually changes
+```
+
+### Pitfall 3: Missing Cleanup
+
+```tsx
+// ❌ Bug: Memory leak - listener never removed
+useEffect(() => {
+  window.addEventListener('resize', handleResize)
+}, [])
+
+// ✅ Fix: Return cleanup function
+useEffect(() => {
+  window.addEventListener('resize', handleResize)
+  return () => {
+    window.removeEventListener('resize', handleResize)
+  }
+}, [])
+```
+
+### Pitfall 4: Setting State in useEffect Without Conditions
+
+```tsx
+// ❌ Bug: Infinite loop!
+useEffect(() => {
+  setCount(count + 1)  // State change → re-render → effect runs → ...
+}, [count])
+
+// ✅ Fix: Add a condition or remove from dependencies
+useEffect(() => {
+  if (count < 10) {
+    setCount(count + 1)  // Stops at 10
+  }
+}, [count])
+```
+
+### Pitfall 5: Async Functions in useEffect
+
+```tsx
+// ❌ Warning: useEffect expects a cleanup function, not a Promise
+useEffect(async () => {
+  const data = await fetchData()  // Returns Promise, not cleanup!
+  setData(data)
+}, [])
+
+// ✅ Fix: Define async function inside effect
+useEffect(() => {
+  const loadData = async () => {
+    const data = await fetchData()
+    setData(data)
+  }
+  loadData()
+}, [])
+
+// ✅ Even better: Handle race conditions with cleanup
+useEffect(() => {
+  let cancelled = false
+
+  const loadData = async () => {
+    const data = await fetchData()
+    if (!cancelled) {
+      setData(data)  // Only update if not cancelled
+    }
+  }
+  loadData()
+
+  return () => {
+    cancelled = true  // Prevent state update if unmounted
+  }
+}, [])
+```
+
+### Debugging Tips
+
+1. **Add console.log at the start of effects**: See when they run and with what values
+2. **Check dependency arrays**: ESLint will warn about missing dependencies
+3. **Use React DevTools Profiler**: See which components re-render and why
+4. **Temporarily add all variables to deps**: Then optimize once it works correctly
+
+### Common useState Mistakes
+
+```tsx
+// ❌ Directly mutating state
+const [items, setItems] = useState(['a', 'b'])
+items.push('c')  // WRONG - mutates array directly
+setItems(items)  // Won't trigger re-render (same reference)
+
+// ✅ Create new array
+setItems([...items, 'c'])
+
+// ❌ Using stale state in callbacks
+const handleClick = () => {
+  setCount(count + 1)
+  setCount(count + 1)  // Still uses old count!
+}
+// Result: count increases by 1, not 2
+
+// ✅ Use functional updates
+const handleClick = () => {
+  setCount(prev => prev + 1)
+  setCount(prev => prev + 1)  // Uses latest value
+}
+// Result: count increases by 2
+```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Counter with Multiple Actions
 
-Build a counter with increment, decrement, and reset buttons:
+**Challenge**: Build a counter with increment, decrement, and reset buttons.
 
 ```tsx
 // Features:
@@ -626,9 +781,33 @@ Build a counter with increment, decrement, and reset buttons:
 // - Don't allow negative numbers
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Use a single `useState` for the count
+2. Create three handler functions: `increment`, `decrement`, `reset`
+3. In `decrement`, check if count is > 0 before decrementing
+4. Use `Math.max(0, count - 1)` to prevent negative numbers
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Clicking increment increases count
+- [ ] Clicking decrement decreases count
+- [ ] Count never goes below 0
+- [ ] Reset returns count to 0
+- [ ] Multiple rapid clicks work correctly
+
+</details>
+
+---
+
 ### Exercise 2: Character Counter Input
 
-Build an input that shows remaining characters:
+**Challenge**: Build an input that shows remaining characters.
 
 ```tsx
 // Features:
@@ -639,9 +818,35 @@ Build an input that shows remaining characters:
 // - Disable typing when limit reached
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Store the input value in state: `const [text, setText] = useState('')`
+2. Calculate remaining: `const remaining = 280 - text.length`
+3. Use conditional styling based on `remaining` value
+4. Use `maxLength={280}` on the input OR handle it manually in onChange
+5. Consider using a ternary for the color class
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Empty input shows "280 characters remaining" in default color
+- [ ] Typing reduces the count
+- [ ] At 20 remaining, color changes to yellow/warning
+- [ ] At 0 remaining, color changes to red/danger
+- [ ] Cannot type more than 280 characters
+- [ ] Deleting characters increases count and may change color back
+
+</details>
+
+---
+
 ### Exercise 3: Auto-Save Notes
 
-Build a notes component that auto-saves to localStorage:
+**Challenge**: Build a notes component that auto-saves to localStorage.
 
 ```tsx
 // Features:
@@ -651,6 +856,42 @@ Build a notes component that auto-saves to localStorage:
 // - Show "Saved" after successful save
 // - Load saved notes on mount
 ```
+
+<details>
+<summary>💡 Hints</summary>
+
+1. You'll need multiple pieces of state: `notes`, `status` ('idle' | 'saving' | 'saved')
+2. Use `useEffect` with a debounce timer (setTimeout)
+3. Clear the timeout in the cleanup function
+4. Another `useEffect` with empty deps to load from localStorage on mount
+5. Set status to 'saving' immediately, then 'saved' after the timeout
+
+```tsx
+// Debounce pattern:
+useEffect(() => {
+  setStatus('saving')
+  const timer = setTimeout(() => {
+    localStorage.setItem('notes', notes)
+    setStatus('saved')
+  }, 1000)
+  return () => clearTimeout(timer)
+}, [notes])
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Saved notes load when component mounts
+- [ ] Shows "Saving..." while typing
+- [ ] Shows "Saved" after 1 second of no typing
+- [ ] Data persists after page refresh
+- [ ] Typing again resets to "Saving..."
+- [ ] Rapid typing doesn't cause multiple saves (debouncing works)
+
+</details>
 
 ---
 

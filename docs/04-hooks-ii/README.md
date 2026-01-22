@@ -794,11 +794,309 @@ export const useTransactionFilters = (transactions: Transaction[]) => {
 
 ---
 
+## 7. Context API for Shared State
+
+### What is Context?
+
+React Context provides a way to pass data through the component tree without having to pass props manually at every level. It's useful for "global" data like themes, user authentication, or language preferences.
+
+### When to Use Context
+
+- **Theme data** (light/dark mode)
+- **User authentication** (current user)
+- **Locale/language preferences**
+- **Any data needed by many components** at different nesting levels
+
+### Creating Context
+
+```tsx
+// src/context/ThemeContext.tsx
+import { createContext, useContext, useState, type ReactNode } from 'react'
+
+type Theme = 'light' | 'dark'
+
+interface ThemeContextType {
+  theme: Theme
+  toggleTheme: () => void
+}
+
+// Create context with undefined default (we'll require provider)
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+
+// Provider component
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setTheme] = useState<Theme>('light')
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+// Custom hook to use the context
+export const useTheme = () => {
+  const context = useContext(ThemeContext)
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider')
+  }
+  return context
+}
+```
+
+### Using Context
+
+```tsx
+// App.tsx - Wrap app with provider
+import { ThemeProvider } from '@/context/ThemeContext'
+
+const App = () => {
+  return (
+    <ThemeProvider>
+      <Layout />
+    </ThemeProvider>
+  )
+}
+
+// Any component can use the context
+const ThemeToggle = () => {
+  const { theme, toggleTheme } = useTheme()
+
+  return (
+    <button onClick={toggleTheme}>
+      Current theme: {theme}
+    </button>
+  )
+}
+
+const Card = () => {
+  const { theme } = useTheme()
+
+  return (
+    <div className={theme === 'dark' ? 'bg-gray-800' : 'bg-white'}>
+      Card content
+    </div>
+  )
+}
+```
+
+### Context with Reducer for Complex State
+
+```tsx
+// src/context/AuthContext.tsx
+import { createContext, useContext, useReducer, type ReactNode } from 'react'
+
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+}
+
+type AuthAction =
+  | { type: 'LOGIN_START' }
+  | { type: 'LOGIN_SUCCESS'; payload: User }
+  | { type: 'LOGIN_FAILURE' }
+  | { type: 'LOGOUT' }
+
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case 'LOGIN_START':
+      return { ...state, isLoading: true }
+    case 'LOGIN_SUCCESS':
+      return { user: action.payload, isAuthenticated: true, isLoading: false }
+    case 'LOGIN_FAILURE':
+      return { user: null, isAuthenticated: false, isLoading: false }
+    case 'LOGOUT':
+      return { user: null, isAuthenticated: false, isLoading: false }
+    default:
+      return state
+  }
+}
+
+interface AuthContextType extends AuthState {
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [state, dispatch] = useReducer(authReducer, {
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+  })
+
+  const login = async (email: string, password: string) => {
+    dispatch({ type: 'LOGIN_START' })
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+      const user = await response.json()
+      dispatch({ type: 'LOGIN_SUCCESS', payload: user })
+    } catch {
+      dispatch({ type: 'LOGIN_FAILURE' })
+    }
+  }
+
+  const logout = () => {
+    dispatch({ type: 'LOGOUT' })
+  }
+
+  return (
+    <AuthContext.Provider value={{ ...state, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+```
+
+### Context vs Zustand vs Props
+
+| Approach | When to Use |
+|----------|------------|
+| **Props** | Data needed by direct children only |
+| **Context** | Data needed by many components at different levels; built-in, no dependencies |
+| **Zustand** | Complex state logic; need state outside React; need fine-grained subscriptions |
+
+### Context Performance Tip
+
+Context re-renders all consumers when value changes. Split contexts to avoid unnecessary re-renders:
+
+```tsx
+// ❌ Bad: One big context
+const AppContext = createContext({
+  user: null,
+  theme: 'light',
+  notifications: [],
+})
+
+// ✅ Good: Split into separate contexts
+const UserContext = createContext(null)
+const ThemeContext = createContext('light')
+const NotificationsContext = createContext([])
+```
+
+> **Note:** In this tutorial, we use Zustand (Module 09) instead of Context for most state management because it provides simpler APIs and better performance for complex state. However, understanding Context is essential as it's React's built-in solution and commonly used in many codebases.
+
+---
+
+## 8. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Forgetting Dependencies in useMemo/useCallback
+
+```tsx
+// ❌ Bug: Stale closure - always uses initial user value
+const handleSubmit = useCallback((data) => {
+  submitWithUser(data, user)  // user is captured at creation time
+}, [])  // Missing user dependency!
+
+// ✅ Fix: Include all dependencies
+const handleSubmit = useCallback((data) => {
+  submitWithUser(data, user)
+}, [user])
+```
+
+### Pitfall 2: Over-Memoizing
+
+```tsx
+// ❌ Unnecessary: Simple calculations don't need memoization
+const doubled = useMemo(() => count * 2, [count])
+
+// ✅ Better: Just compute it
+const doubled = count * 2
+
+// ❌ Unnecessary: Callbacks used in non-memoized children
+const handleClick = useCallback(() => console.log('clicked'), [])
+<button onClick={handleClick}>Click</button>  // button isn't memoized
+
+// ✅ Better: Only memoize when child is memoized
+<button onClick={() => console.log('clicked')}>Click</button>
+```
+
+### Pitfall 3: useRef Initial Value Pitfall
+
+```tsx
+// ❌ Bug: Expensive computation runs on every render
+const ref = useRef(expensiveComputation())
+
+// ✅ Fix: Use lazy initialization pattern
+const ref = useRef<ExpensiveType | null>(null)
+if (ref.current === null) {
+  ref.current = expensiveComputation()
+}
+```
+
+### Pitfall 4: Context Provider Value Creating New Objects
+
+```tsx
+// ❌ Bug: New object on every render causes all consumers to re-render
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light')
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>  {/* New object! */}
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+// ✅ Fix: Memoize the value
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light')
+
+  const value = useMemo(() => ({ theme, setTheme }), [theme])
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+```
+
+### Debugging Tips
+
+1. **Use React DevTools Profiler**: See which components re-render and why
+2. **Add console.log in useMemo/useCallback**: Verify they're not recreating too often
+3. **Check dependency arrays**: ESLint react-hooks plugin will warn about missing deps
+4. **Measure before optimizing**: Use the Profiler to find actual bottlenecks
+
+```tsx
+// Add logging to verify memoization
+const expensiveValue = useMemo(() => {
+  console.log('Computing expensive value...')  // Should log infrequently
+  return computeExpensiveValue(data)
+}, [data])
+```
+
+---
+
 ## Exercises
 
 ### Exercise 1: useClickOutside Hook
 
-Create a hook that detects clicks outside an element:
+**Challenge**: Create a hook that detects clicks outside an element.
 
 ```tsx
 // Usage:
@@ -810,9 +1108,49 @@ const Modal = () => {
 }
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Accept a `ref` and a `callback` as parameters
+2. Add a `mousedown` or `click` event listener to `document`
+3. Check if `ref.current` contains the event target: `ref.current?.contains(event.target)`
+4. If click is outside (not contained), call the callback
+5. Don't forget to remove the event listener in cleanup
+
+```tsx
+// Skeleton:
+export const useClickOutside = (
+  ref: RefObject<HTMLElement>,
+  callback: () => void
+) => {
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      // Check if click is outside ref element
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [ref, callback])
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Clicking inside the element does NOT trigger callback
+- [ ] Clicking outside the element DOES trigger callback
+- [ ] No memory leaks (event listener is cleaned up)
+- [ ] Works with nested elements inside the ref
+
+</details>
+
+---
+
 ### Exercise 2: useAsync Hook
 
-Create a hook for handling async operations:
+**Challenge**: Create a hook for handling async operations with loading, error, and data states.
 
 ```tsx
 // Usage:
@@ -822,12 +1160,113 @@ const { execute, data, isLoading, error } = useAsync(fetchUser)
 <button onClick={() => execute(userId)}>Load User</button>
 ```
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Store three pieces of state: `data`, `isLoading`, `error`
+2. The `execute` function should:
+   - Set `isLoading` to true
+   - Clear any previous error
+   - Call the async function
+   - Set `data` on success
+   - Set `error` on failure
+   - Set `isLoading` to false when done
+3. Wrap `execute` in `useCallback` to keep stable reference
+4. Consider returning `reset` function to clear state
+
+```tsx
+// Skeleton:
+export const useAsync = <T, Args extends unknown[]>(
+  asyncFn: (...args: Args) => Promise<T>
+) => {
+  const [state, setState] = useState<{
+    data: T | null
+    isLoading: boolean
+    error: Error | null
+  }>({ data: null, isLoading: false, error: null })
+
+  const execute = useCallback(async (...args: Args) => {
+    // Implement the logic here
+  }, [asyncFn])
+
+  return { ...state, execute }
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] `isLoading` is true while async operation is pending
+- [ ] `data` is set on successful completion
+- [ ] `error` is set when async operation fails
+- [ ] Multiple calls to `execute` work correctly
+- [ ] `execute` function reference is stable (doesn't change between renders)
+
+</details>
+
+---
+
 ### Exercise 3: Optimize TransactionList
 
-Take the transaction list and optimize it with:
-- `useMemo` for filtering/sorting
-- `useCallback` for event handlers
-- `React.memo` for list items
+**Challenge**: Take a transaction list and optimize it to prevent unnecessary re-renders.
+
+```tsx
+// Optimize this component:
+const TransactionList = ({ transactions, onDelete }) => {
+  const [filter, setFilter] = useState('')
+
+  const filtered = transactions.filter(t =>
+    t.description.toLowerCase().includes(filter.toLowerCase())
+  )
+
+  return (
+    <div>
+      <input value={filter} onChange={e => setFilter(e.target.value)} />
+      {filtered.map(t => (
+        <TransactionItem
+          key={t.id}
+          transaction={t}
+          onDelete={() => onDelete(t.id)}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+<details>
+<summary>💡 Hints</summary>
+
+1. **Memoize the filtered list** with `useMemo` - only recalculate when `transactions` or `filter` changes
+2. **Memoize `onDelete` handler** with `useCallback` - currently creates a new function for each item on every render
+3. **Wrap `TransactionItem` in `React.memo`** - prevents re-render if props haven't changed
+4. Pass `id` to `onDelete` instead of creating inline arrow function
+
+```tsx
+// Pattern for stable callback:
+const handleDelete = useCallback((id: string) => {
+  onDelete(id)
+}, [onDelete])
+
+// In TransactionItem (memoized):
+<button onClick={() => onDelete(transaction.id)}>Delete</button>
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Use React DevTools Profiler to verify:
+- [ ] Typing in filter only re-renders necessary components
+- [ ] `TransactionItem` components don't re-render when unrelated state changes
+- [ ] Filtering calculation only runs when dependencies change (add console.log to verify)
+- [ ] Deleting a transaction doesn't cause all items to re-render
+
+</details>
 
 ---
 

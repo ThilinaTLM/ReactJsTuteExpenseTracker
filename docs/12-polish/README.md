@@ -629,7 +629,144 @@ module.exports = {
 
 ---
 
-## 7. Final Checklist
+## 7. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Error Boundary Not Catching Async Errors
+
+```tsx
+// ❌ Bug: Error boundaries don't catch async errors
+const Component = () => {
+  useEffect(() => {
+    fetch('/api/data').then(() => {
+      throw new Error('This won\'t be caught!')  // Async - not caught!
+    })
+  }, [])
+}
+
+// ✅ Fix: Handle async errors explicitly
+const Component = () => {
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(/* ... */)
+      .catch(setError)  // Catch and set error state
+  }, [])
+
+  if (error) throw error  // Now error boundary catches it
+}
+
+// ✅ Or use TanStack Query which handles this automatically
+const { data, error } = useQuery({ /* ... */ })
+```
+
+### Pitfall 2: Memory Leaks from Uncanceled Subscriptions
+
+```tsx
+// ❌ Bug: State update after unmount
+useEffect(() => {
+  fetch('/api/data')
+    .then(res => res.json())
+    .then(data => setData(data))  // Component might be unmounted!
+}, [])
+
+// ✅ Fix: Cancel or ignore stale requests
+useEffect(() => {
+  const controller = new AbortController()
+
+  fetch('/api/data', { signal: controller.signal })
+    .then(res => res.json())
+    .then(data => setData(data))
+    .catch(err => {
+      if (err.name !== 'AbortError') throw err
+    })
+
+  return () => controller.abort()
+}, [])
+```
+
+### Pitfall 3: Lazy Loading Without Suspense
+
+```tsx
+// ❌ Bug: App crashes on lazy component load
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+
+const App = () => (
+  <Routes>
+    <Route path="/" element={<Dashboard />} />  {/* No Suspense! */}
+  </Routes>
+)
+
+// ✅ Fix: Wrap lazy components in Suspense
+const App = () => (
+  <Suspense fallback={<LoadingSpinner />}>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+    </Routes>
+  </Suspense>
+)
+```
+
+### Pitfall 4: Skeleton Flash on Fast Networks
+
+```tsx
+// ❌ Poor UX: Brief skeleton flash when data loads quickly
+if (isLoading) return <Skeleton />
+
+// ✅ Better: Delay skeleton or use minimum display time
+const [showSkeleton, setShowSkeleton] = useState(false)
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    if (isLoading) setShowSkeleton(true)
+  }, 200)  // Only show after 200ms
+  return () => clearTimeout(timer)
+}, [isLoading])
+
+if (isLoading && showSkeleton) return <Skeleton />
+```
+
+### Pitfall 5: Dark Mode FOUC (Flash of Unstyled Content)
+
+```tsx
+// ❌ Bug: Flash of light mode before dark mode applies
+// Theme loads from localStorage after first render
+
+// ✅ Fix: Add blocking script in index.html <head>
+<script>
+  const theme = localStorage.getItem('theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  document.documentElement.classList.add(theme)
+</script>
+```
+
+### Debugging Tips
+
+1. **React DevTools Profiler**: Identify unnecessary re-renders and their causes
+2. **Lighthouse**: Check performance, accessibility, and best practices scores
+3. **Network throttling**: Test loading states with slow 3G simulation
+4. **Keyboard testing**: Tab through entire app to verify focus management
+5. **Screen reader testing**: Use VoiceOver (Mac) or NVDA (Windows) to test accessibility
+
+### Performance Checklist
+
+```tsx
+// Use React DevTools "Highlight updates" to spot excessive re-renders
+// Look for:
+// - Components re-rendering when unrelated state changes
+// - Parent re-renders causing all children to re-render
+// - Missing memoization on expensive calculations
+
+// Quick wins:
+// 1. Memoize expensive calculations with useMemo
+// 2. Memoize callbacks passed to memoized children with useCallback
+// 3. Wrap list items in React.memo
+// 4. Use virtualization for long lists (react-window, @tanstack/virtual)
+```
+
+---
+
+## 8. Final Checklist
 
 ### Functionality
 - [ ] All CRUD operations work correctly
@@ -693,6 +830,152 @@ The built files in `dist/` can be deployed to any static hosting:
 - Vercel
 - GitHub Pages
 - AWS S3 + CloudFront
+
+---
+
+## Exercises
+
+### Exercise 1: Add Loading Skeletons
+
+**Challenge**: Replace simple spinners with skeleton loading states that match content shape.
+
+Requirements:
+- Create skeleton components for StatCard, TransactionItem, and Chart
+- Show skeletons while data is loading
+- Match the approximate size/shape of real content
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Create a base `Skeleton` component with Tailwind's `animate-pulse`
+2. Build specific skeletons by composing the base component
+3. Use the same height/width as real components
+
+```tsx
+// Base skeleton
+const Skeleton = ({ className }: { className?: string }) => (
+  <div className={cn('animate-pulse bg-slate-200 rounded', className)} />
+)
+
+// StatCard skeleton
+const StatCardSkeleton = () => (
+  <div className="p-6 border rounded-lg">
+    <Skeleton className="h-4 w-24 mb-2" />
+    <Skeleton className="h-8 w-32" />
+  </div>
+)
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Skeletons show during initial load
+- [ ] Skeletons match the size of real components
+- [ ] Smooth animation (pulse effect)
+- [ ] No layout shift when content loads
+- [ ] Throttle network in DevTools to see skeletons clearly
+
+</details>
+
+---
+
+### Exercise 2: Add Keyboard Shortcuts
+
+**Challenge**: Add keyboard shortcuts for common actions.
+
+Requirements:
+- `n` to open new transaction modal
+- `Escape` to close any modal
+- `/` to focus search input
+- Arrow keys to navigate transaction list
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Create a `useKeyboardShortcut` hook
+2. Listen for `keydown` events on `document`
+3. Check `event.key` and prevent default if handling
+4. Don't trigger when user is typing in an input
+
+```tsx
+const useKeyboardShortcut = (key: string, callback: () => void) => {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // Don't trigger if typing in input
+      if (e.target instanceof HTMLInputElement) return
+      if (e.key === key) {
+        e.preventDefault()
+        callback()
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [key, callback])
+}
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Press `n` anywhere - new transaction modal opens
+- [ ] Press `Escape` - any open modal closes
+- [ ] Press `/` - search input focuses
+- [ ] Shortcuts don't trigger when typing in inputs
+- [ ] Arrow keys navigate list (if implemented)
+
+</details>
+
+---
+
+### Exercise 3: Performance Audit
+
+**Challenge**: Profile the app and fix any performance issues.
+
+Requirements:
+- Use React DevTools Profiler to find slow renders
+- Identify components that re-render unnecessarily
+- Apply optimizations (memo, useMemo, useCallback)
+- Verify improvements with before/after measurements
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Open React DevTools > Profiler tab
+2. Click "Record" and interact with the app
+3. Look for components that re-render when they shouldn't
+4. Common fixes:
+   - Wrap list items in `React.memo`
+   - Memoize callbacks passed to children
+   - Memoize expensive calculations
+   - Split context to avoid unnecessary consumers
+
+```tsx
+// Before: TransactionItem re-renders on every parent render
+const TransactionItem = ({ transaction, onDelete }) => { ... }
+
+// After: Only re-renders if props change
+const TransactionItem = memo(({ transaction, onDelete }) => { ... })
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Record a Profiler session before optimization
+- [ ] Identify at least 2 unnecessary re-renders
+- [ ] Apply optimizations
+- [ ] Record another session - verify fewer re-renders
+- [ ] App still works correctly after changes
+
+</details>
 
 ---
 

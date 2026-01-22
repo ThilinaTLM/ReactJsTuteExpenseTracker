@@ -840,27 +840,257 @@ const App = () => {
 
 ---
 
+## 11. Common Pitfalls & Debugging Tips
+
+### Pitfall 1: Token Stored in Plain LocalStorage
+
+```tsx
+// ❌ Security risk: Token in localStorage is vulnerable to XSS
+const useAuthStore = create(
+  persist(
+    (set) => ({
+      token: null,
+      // ...
+    }),
+    { name: 'auth-storage' }  // Token persisted!
+  )
+)
+
+// ✅ Better: Only persist non-sensitive data, use httpOnly cookies for tokens in production
+const useAuthStore = create(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      // token handled separately via httpOnly cookie
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        // Don't persist token
+      }),
+    }
+  )
+)
+```
+
+### Pitfall 2: Race Condition on Auth Check
+
+```tsx
+// ❌ Bug: Flash of protected content before redirect
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />
+  }
+
+  return children  // May flash before auth state is loaded!
+}
+
+// ✅ Fix: Show loading while auth state is being determined
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore()
+
+  if (isLoading) {
+    return <LoadingSpinner />  // Wait for auth check
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />
+  }
+
+  return children
+}
+```
+
+### Pitfall 3: Not Handling 401 Responses Globally
+
+```tsx
+// ❌ Bug: Each component must handle expired session individually
+const { data } = useQuery({
+  queryFn: async () => {
+    const res = await fetch('/api/data')
+    if (res.status === 401) {
+      // Have to handle this everywhere!
+    }
+  }
+})
+
+// ✅ Fix: Handle 401 in API client globally
+class ApiClient {
+  async request(url) {
+    const response = await fetch(url, { /* ... */ })
+
+    if (response.status === 401) {
+      useAuthStore.getState().logout()
+      window.location.href = '/login'
+      throw new Error('Session expired')
+    }
+
+    return response.json()
+  }
+}
+```
+
+### Pitfall 4: Redirect Loop on Auth Pages
+
+```tsx
+// ❌ Bug: Infinite redirects
+// Login redirects to / if authenticated
+// / redirects to /login if not authenticated
+// If auth state is inconsistent, loops forever!
+
+// ✅ Fix: Add isLoading check and use replace
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore()
+
+  if (isLoading) return <LoadingSpinner />
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />  // 'replace' prevents history buildup
+  }
+
+  return children
+}
+```
+
+### Pitfall 5: Password Shown in Network Tab
+
+```tsx
+// ❌ Security concern: Password visible in GET query params
+fetch(`/api/login?email=${email}&password=${password}`)
+
+// ✅ Always use POST with body for credentials
+fetch('/api/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password }),
+})
+```
+
+### Debugging Tips
+
+1. **Check localStorage**: Look for auth state in Application > Storage > Local Storage
+2. **Network tab**: Verify login/logout requests and responses
+3. **React DevTools**: Inspect Zustand store state
+4. **Add logging to auth store**: Temporarily log state changes
+   ```tsx
+   const useAuthStore = create((set) => ({
+     login: (data) => {
+       console.log('Login:', data)
+       set({ user: data.user, isAuthenticated: true })
+     },
+   }))
+   ```
+
+---
+
 ## Exercises
 
 ### Exercise 1: Remember Me
 
-Add a "Remember me" checkbox to the login form that:
+**Challenge**: Add a "Remember me" checkbox to the login form.
+
 - When checked, persists session for 30 days
 - When unchecked, session expires when browser closes
 
+<details>
+<summary>💡 Hints</summary>
+
+1. Add a `rememberMe` checkbox to the login form
+2. Pass the value to your login function
+3. Conditionally use `sessionStorage` vs `localStorage` based on checkbox
+4. Or set different expiration times for the persist middleware
+
+```tsx
+// Pattern: Custom storage based on rememberMe
+const storage = rememberMe
+  ? localStorage  // Persists across browser sessions
+  : sessionStorage  // Cleared when browser closes
+```
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Checkbox displays on login form
+- [ ] With "Remember me" checked, close and reopen browser - still logged in
+- [ ] With "Remember me" unchecked, close and reopen browser - logged out
+- [ ] Check localStorage/sessionStorage in DevTools to verify storage location
+
+</details>
+
+---
+
 ### Exercise 2: Password Reset
 
-Create a password reset flow:
-- Forgot password page
-- Email input form
+**Challenge**: Create a password reset flow.
+
+- Forgot password page with email input
 - Mock reset token generation
+- Success message after submission
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Create `/forgot-password` route and page
+2. Add a "Forgot password?" link on login page
+3. Create a form with just email field
+4. Mock the API to return success (no actual email sent)
+5. Show success message: "If an account exists, we've sent a reset link"
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] "Forgot password?" link on login page navigates correctly
+- [ ] Email validation works (invalid email shows error)
+- [ ] Submit shows success message (even for non-existent emails for security)
+- [ ] Loading state shows during submission
+- [ ] Link back to login page works
+
+</details>
+
+---
 
 ### Exercise 3: Profile Page
 
-Create a profile page where users can:
-- View their information
-- Update their name
-- Change their password
+**Challenge**: Create a profile page where users can view and update their information.
+
+- Display current user info
+- Form to update name
+- Form to change password (current + new + confirm)
+
+<details>
+<summary>💡 Hints</summary>
+
+1. Create `/profile` or `/settings` route
+2. Pre-fill form with current user data from auth store
+3. Create separate forms for profile update and password change
+4. Add validation (new password must differ from current)
+5. Update auth store on successful profile update
+
+</details>
+
+<details>
+<summary>✅ Verification</summary>
+
+Test these scenarios:
+- [ ] Current name and email display correctly
+- [ ] Updating name saves and shows success message
+- [ ] Password change validates current password
+- [ ] New password and confirm must match
+- [ ] Can't submit with same new password as current
+- [ ] Updated name reflects in header/menu immediately
+
+</details>
 
 ---
 
